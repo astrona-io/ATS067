@@ -1,0 +1,73 @@
+# Preparation scaffold. Technical pages stay draft until authoring and review.
+training:
+  id: ATS067
+  title: 'CGOA: GitOps Patterns'
+  description: Preparation scaffold for GitOps Patterns. Lessons and environments are planned.
+  certification:
+    name: Certified GitOps Associate
+    code: CGOA
+    provider: CNCF / Linux Foundation
+    domain: GitOps Patterns
+    weight: 20
+    competencies:
+    - Deployment and Release Patterns
+    - Progressive Delivery Patterns
+    - Pull vs. Event-driven
+    - Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+modules:
+- id: module-intro
+  title: Introduction
+  description: Planned introduction and authoring status.
+  content:
+  - type: reading
+    title: Introduction
+    path: sections/intro/README.md
+  - type: reading
+    title: Welcome To The Course
+    path: sections/intro/course-01-welcome.md
+  - type: reading
+    title: Get Your Machine Ready
+    path: sections/intro/course-02-get-your-machine-ready.md
+  - type: reading
+    title: How This Course Is Made
+    path: sections/intro/course-03-how-this-course-is-made.md
+- id: module-010
+  title: Deployment and Release Patterns
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-010/README.md
+  - type: reading
+    title: Deployment and Release Patterns
+    path: sections/section-010/module-01/course.md
+- id: module-020
+  title: Progressive Delivery Patterns
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-020/README.md
+  - type: reading
+    title: Progressive Delivery Patterns
+    path: sections/section-020/module-01/course.md
+- id: module-030
+  title: Pull vs. Event-driven
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-030/README.md
+  - type: reading
+    title: Pull vs. Event-driven
+    path: sections/section-030/module-01/course.md
+- id: module-040
+  title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-040/README.md
+  - type: reading
+    title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+    path: sections/section-040/module-01/course.md
