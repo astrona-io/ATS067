@@ -1,25 +1,21 @@
-# Curriculum And Authoring Plan
+# Curriculum Coverage
 
 Exam: Certified GitOps Associate (CGOA). Domain: GitOps Patterns (20%).
-Source: [official curriculum](https://training.linuxfoundation.org/certification/certified-gitops-associate-cgoa/), checked 2026-10-10.
-Objectives are attributed to The Linux Foundation and CNCF.
 
-Preparation scaffold; content authoring has not started.
+The [official objectives](https://training.linuxfoundation.org/certification/certified-gitops-associate-cgoa/) were checked on 2026-10-11. Teaching structure is independently authored and does not add official requirements.
 
-| Section | Official objective | Authoring status |
+| Section | Official objective | Modules |
 | --- | --- | --- |
-| 010 | Deployment and Release Patterns | Planned |
-| 020 | Progressive Delivery Patterns | Planned |
-| 030 | Pull vs. Event-driven | Planned |
-| 040 | Architecture Patterns (in-cluster and external reconciler, state store management, etc.) | Planned |
+| 010 | Deployment and Release Patterns | 1 |
+| 020 | Progressive Delivery Patterns | 1 |
+| 030 | Pull vs. Event-driven | 1 |
+| 040 | Architecture Patterns (in-cluster and external reconciler, state store management, etc.) | 1 |
 
-Before building content:
+| Section / module | Module | Teaching files |
+| --- | --- | --- |
+| 010 / 01 | Safe Application Releases | Rolling Updates And Health Gates; Blue-Green, Canary And Release Evidence |
+| 020 / 01 | Canary Steps And Blue-Green Service Switching | Canary Steps And Blue-Green Service Switching; AnalysisTemplate Measurements And AnalysisRun Decisions |
+| 030 / 01 | Event-Driven Triggers And Safe Repeated Actions | Event-Driven Triggers And Safe Repeated Actions |
+| 040 / 01 | Agent Placement, Repository Layout And Failure Domains | Agent Placement, Repository Layout And Failure Domains |
 
-- Recheck the curriculum and refine broad objectives into teachable modules.
-- Choose and record the environment versions and any image dependencies.
-- Write the introduction and remove placeholder notices only when it is ready.
-- Build short parts and runnable playgrounds; add graded labs where appropriate.
-- Add quizzes and a capstone when the completed domain needs them.
-- Check real outputs and reference solutions, and update `astrona.yaml`.
-- Remove `draft: true` from completed technical pages after review.
-- Publish the course only after the maintainer approves the completed content.
+AUTHORING.yaml records measurable goals and adaptation sources. Every objective retains its section ID. All technical readings remain draft. Question banks are separate from the reading manifest and follow their declared summaries. No labs, playgrounds or runtime validation are included.

@@ -1,18 +1,18 @@
-# ATS067 — CGOA: GitOps Patterns
+# GitOps Patterns (ATS067)
 
-Preparation for the **GitOps Patterns** domain of **Certified GitOps Associate (CGOA)**.
-The published domain weight is **20%**. This repository belongs to
-the [ATP013 training path](https://github.com/astrona-io/ATP013).
+Certified GitOps Associate (CGOA): GitOps Patterns, worth 20% of the official curriculum. This course belongs to ATP013.
 
-**Status:** Preparation scaffold; content authoring has not started.
+Developed reading explains mechanisms, responsible components, examples and limits. Every section has an introduction and every module closes with a summary. Reusable YAML checks contain 5–15 questions per bank. Technical content remains draft. No labs or playgrounds are included.
 
-The initial commit reserves the curriculum structure. Lessons, playgrounds,
-labs and assessments are planned and are not ready for learner use.
+## Course Outline
 
-See [CURRICULUM.md](CURRICULUM.md) for the objective map and authoring checklist,
-[astrona.yaml](astrona.yaml) for the course manifest, and
-[CLAUDE.md](CLAUDE.md) for writing and environment rules.
+| Section / module | Module | Teaching files |
+| --- | --- | --- |
+| 010 / 01 | Safe Application Releases | Rolling Updates And Health Gates; Blue-Green, Canary And Release Evidence |
+| 020 / 01 | Canary Steps And Blue-Green Service Switching | Canary Steps And Blue-Green Service Switching; AnalysisTemplate Measurements And AnalysisRun Decisions |
+| 030 / 01 | Event-Driven Triggers And Safe Repeated Actions | Event-Driven Triggers And Safe Repeated Actions |
+| 040 / 01 | Agent Placement, Repository Layout And Failure Domains | Agent Placement, Repository Layout And Failure Domains |
 
-Curriculum source: [official CGOA page](https://training.linuxfoundation.org/certification/certified-gitops-associate-cgoa/), checked 2026-10-10.
-License: [Apache-2.0](LICENSE). Curriculum objectives retain attribution to
-The Linux Foundation and CNCF; see [CNCF curriculum licensing](https://github.com/cncf/curriculum).
+## Author Review
+
+See [curriculum coverage](CURRICULUM.md), [primary sources](SOURCES.md), [question-bank documentation](ASSESSMENTS.md) and [contribution instructions](CONTRIBUTING.md). No runtime execution is claimed.

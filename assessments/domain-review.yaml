@@ -1,0 +1,247 @@
+schema_version: 1
+kind: question_bank
+id: ats067-domain-review
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: domain
+  id: domain-review
+  title: GitOps Patterns
+placement:
+  position: after
+  reading: sections/section-040/module-01/course-02-summary.md
+questions:
+- id: ats067-domain-review-q01
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify evidence needed to promote or reverse a release.
+  source_readings:
+  - sections/section-010/module-01/course-02-blue-green-canary-and-release-evidence.md
+  prompt: A canary has almost no representative requests and no observed errors. Is that enough evidence
+    for broad promotion?
+  options:
+  - id: a
+    text: No; canaries are never usable.
+    explanation: They can support release decisions when the evidence is suitable.
+  - id: b
+    text: No; exposure and measurements must represent meaningful application behavior.
+    explanation: A quiet canary may not exercise the risky paths.
+  - id: c
+    text: Yes; zero observed failures always proves complete correctness.
+    explanation: The sample can be too weak or unrepresentative.
+  correct_option: b
+  explanation: A quiet canary may not exercise the risky paths.
+- id: ats067-domain-review-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain rolling update behavior and readiness gates.
+  source_readings:
+  - sections/section-010/module-01/course-01-rolling-updates-and-health-gates.md
+  prompt: New release Pods run but fail readiness. Why may old replicas continue receiving traffic during
+    a rollout?
+  options:
+  - id: a
+    text: The new replicas have not provided usable ready capacity.
+    explanation: Readiness and rollout availability gates affect replacement progress.
+  - id: b
+    text: Running always means ready, so the new replicas must receive all traffic.
+    explanation: These are separate states.
+  - id: c
+    text: A progress deadline guarantees immediate automatic rollback.
+    explanation: It signals stalled progress rather than universally performing rollback.
+  correct_option: a
+  explanation: Readiness and rollout availability gates affect replacement progress.
+- id: ats067-domain-review-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare rolling, blue-green and canary strategies.
+  source_readings:
+  - sections/section-010/module-01/course-02-blue-green-canary-and-release-evidence.md
+  prompt: A team sends a small representative traffic share to a new version and promotes it after evaluation.
+    Which strategy is this?
+  options:
+  - id: a
+    text: A one-time Job.
+    explanation: Task completion is unrelated to version-weighted release exposure.
+  - id: b
+    text: Blue-green solely because two versions exist.
+    explanation: The defining behavior here is limited exposure and evaluation, not a full traffic switch
+      between prepared environments.
+  - id: c
+    text: Canary release.
+    explanation: It stages exposure using measured behavior.
+  correct_option: c
+  explanation: It stages exposure using measured behavior.
+- id: ats067-domain-review-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare incremental canary exposure with blue-green promotion.
+  source_readings:
+  - sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+  prompt: What characterizes a canary strategy?
+  options:
+  - id: a
+    text: A permanent ban on more than one replica.
+    explanation: Replica count is a separate setting.
+  - id: b
+    text: Incremental exposure with review or analysis between steps.
+    explanation: It limits the initial affected population.
+  - id: c
+    text: Every version instantly receives all traffic.
+    explanation: That is not staged exposure.
+  correct_option: b
+  explanation: It limits the initial affected population.
+- id: ats067-domain-review-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain stable, canary, active and preview Service relationships.
+  source_readings:
+  - sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+  prompt: What is the preview Service used for in blue-green?
+  options:
+  - id: a
+    text: Accessing the candidate version before active promotion.
+    explanation: It separates candidate inspection from active traffic.
+  - id: b
+    text: Automatically restoring every database backup.
+    explanation: Data recovery is separate.
+  - id: c
+    text: Selecting every unrelated namespace.
+    explanation: The Service selects a defined backend population.
+  correct_option: a
+  explanation: It separates candidate inspection from active traffic.
+- id: ats067-domain-review-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Relate pauses, weights and scale to actual request distribution.
+  source_readings:
+  - sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+  prompt: Does a configured 10% weight guarantee exactly 10% of business users?
+  options:
+  - id: a
+    text: Yes; Pod count alone guarantees exact request distribution.
+    explanation: Replica ratios are not exact routing weights.
+  - id: b
+    text: Yes; every user is permanently assigned by Kubernetes namespace.
+    explanation: That is not the generic contract.
+  - id: c
+    text: No; routing, connections and request behavior affect observations.
+    explanation: The intended traffic split needs actual evidence.
+  correct_option: c
+  explanation: The intended traffic split needs actual evidence.
+- id: ats067-domain-review-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish an event hint for authoritative retrieval from a one-time pushed deployment.
+  source_readings:
+  - sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: Can a webhook accelerate pull-based GitOps?
+  options:
+  - id: a
+    text: Yes; it must delete all version history.
+    explanation: History supports recovery.
+  - id: b
+    text: Yes; it can prompt the agent to retrieve authoritative state.
+    explanation: The event is a hint while the state store remains authoritative.
+  - id: c
+    text: No; every event replaces pull automatically.
+    explanation: Retrieval authority determines the model.
+  correct_option: b
+  explanation: The event is a hint while the state store remains authoritative.
+- id: ats067-domain-review-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why external events can initiate Kubernetes work.
+  source_readings:
+  - sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: What does Argo Events chiefly coordinate?
+  options:
+  - id: a
+    text: Events and configured trigger actions.
+    explanation: It connects occurrence to automation.
+  - id: b
+    text: Every application's database replication.
+    explanation: That is a separate data contract.
+  - id: c
+    text: Every Prometheus scrape.
+    explanation: Collection is not its central trigger role.
+  correct_option: a
+  explanation: It connects occurrence to automation.
+- id: ats067-domain-review-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish event ingestion from task execution.
+  source_readings:
+  - sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: Does event ingestion prove the resulting Workflow succeeded?
+  options:
+  - id: a
+    text: Yes; filters rewrite every task to succeed.
+    explanation: Filters select rather than guarantee business results.
+  - id: b
+    text: Yes; every event directly becomes valid output.
+    explanation: Processing can fail.
+  - id: c
+    text: No; triggering and execution are later stages.
+    explanation: Each needs its own outcome evidence.
+  correct_option: c
+  explanation: Each needs its own outcome evidence.
+- id: ats067-domain-review-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare in-cluster and external reconciliation placement.
+  source_readings:
+  - sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
+  prompt: What tradeoff can arise with a central external agent?
+  options:
+  - id: a
+    text: It automatically isolates every target failure.
+    explanation: Shared dependencies can affect several targets.
+  - id: b
+    text: It can share management while concentrating access and failure impact.
+    explanation: Several targets may depend on one service.
+  - id: c
+    text: It never needs target credentials.
+    explanation: External action still requires authority.
+  correct_option: b
+  explanation: Several targets may depend on one service.
+- id: ats067-domain-review-q11
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain repository layout and environment ownership tradeoffs.
+  source_readings:
+  - sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
+  prompt: What should repository layout clarify?
+  options:
+  - id: a
+    text: Which source and approval path govern each environment.
+    explanation: Layout supports ownership and review.
+  - id: b
+    text: Only the visual order of homepage cards.
+    explanation: That is unrelated.
+  - id: c
+    text: A guarantee that no artifact can change.
+    explanation: Reference policy remains necessary.
+  correct_option: a
+  explanation: Layout supports ownership and review.
+- id: ats067-domain-review-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Reason about bootstrap, credentials and shared failure impact.
+  source_readings:
+  - sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
+  prompt: Why document bootstrap recovery?
+  options:
+  - id: a
+    text: Every agent can always recreate itself with no credentials.
+    explanation: Recovery dependencies can be missing.
+  - id: b
+    text: Bootstrap only affects logo design.
+    explanation: It establishes operational control.
+  - id: c
+    text: Management can fail before it can repair its own source or identity.
+    explanation: The initial trust path needs an external recovery method.
+  correct_option: c
+  explanation: The initial trust path needs an external recovery method.
