@@ -1,8 +1,9 @@
-# Preparation scaffold. Technical pages stay draft until authoring and review.
+# Reading-only content; YAML knowledge checks have a separate index.
 training:
   id: ATS067
   title: 'CGOA: GitOps Patterns'
-  description: Preparation scaffold for GitOps Patterns. Lessons and environments are planned.
+  description: 'Detailed reading material and reusable YAML knowledge checks for CGOA: GitOps Patterns.
+    Technical content remains draft. No labs or playgrounds.'
   certification:
     name: Certified GitOps Associate
     code: CGOA
@@ -17,7 +18,7 @@ training:
 modules:
 - id: module-intro
   title: Introduction
-  description: Planned introduction and authoring status.
+  description: Audience, reading method and review process.
   content:
   - type: reading
     title: Introduction
@@ -33,41 +34,76 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: Deployment and Release Patterns
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Deployment and Release Patterns.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-010/README.md
   - type: reading
     title: Deployment and Release Patterns
+    path: sections/section-010/README.md
+  - type: reading
+    title: Safe Application Releases
     path: sections/section-010/module-01/course.md
+  - type: reading
+    title: Rolling Updates And Health Gates
+    path: sections/section-010/module-01/course-01-rolling-updates-and-health-gates.md
+  - type: reading
+    title: Blue-Green, Canary And Release Evidence
+    path: sections/section-010/module-01/course-02-blue-green-canary-and-release-evidence.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-01/course-03-summary.md
 - id: module-020
   title: Progressive Delivery Patterns
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Progressive Delivery Patterns.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-020/README.md
   - type: reading
     title: Progressive Delivery Patterns
+    path: sections/section-020/README.md
+  - type: reading
+    title: Canary Steps And Blue-Green Service Switching
     path: sections/section-020/module-01/course.md
+  - type: reading
+    title: Canary Steps And Blue-Green Service Switching
+    path: sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+  - type: reading
+    title: AnalysisTemplate Measurements And AnalysisRun Decisions
+    path: sections/section-020/module-01/course-02-analysistemplate-measurements-and-analysisrun-decisions.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-01/course-03-summary.md
 - id: module-030
   title: Pull vs. Event-driven
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Pull vs. Event-driven.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-030/README.md
   - type: reading
     title: Pull vs. Event-driven
+    path: sections/section-030/README.md
+  - type: reading
+    title: Event-Driven Triggers And Safe Repeated Actions
     path: sections/section-030/module-01/course.md
+  - type: reading
+    title: Event-Driven Triggers And Safe Repeated Actions
+    path: sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-01/course-02-summary.md
 - id: module-040
   title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Architecture Patterns (in-cluster and external reconciler,
+    state store management, etc.).
+  draft: true
   content:
   - type: reading
-    title: Section Overview
+    title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
     path: sections/section-040/README.md
   - type: reading
-    title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+    title: Agent Placement, Repository Layout And Failure Domains
     path: sections/section-040/module-01/course.md
+  - type: reading
+    title: Agent Placement, Repository Layout And Failure Domains
+    path: sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-01/course-02-summary.md
