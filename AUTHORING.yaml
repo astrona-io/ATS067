@@ -1,0 +1,114 @@
+version: 1
+approval: CGOA requested 2026-10-11; established reading-only scope
+course:
+  id: ATS067
+  certification:
+    name: Certified GitOps Associate
+    code: CGOA
+    provider: CNCF / Linux Foundation
+    domain: GitOps Patterns
+    weight: 20
+    competencies:
+    - Deployment and Release Patterns
+    - Progressive Delivery Patterns
+    - Pull vs. Event-driven
+    - Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+defaults:
+  playground: false
+  module_lab: false
+  capstone: false
+  section_quiz: false
+  final_quiz: true
+assessment_format: YAML question banks v1, registered in assessments/index.yaml
+sections:
+- id: section-010
+  title: Deployment and Release Patterns
+  curriculum_item: Deployment and Release Patterns
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: Safe Application Releases
+    objectives:
+    - Explain rolling update behavior and readiness gates.
+    - Compare rolling, blue-green and canary strategies.
+    - Identify evidence needed to promote or reverse a release.
+    - Explain compatibility limits of rollback.
+    outline:
+    - Rolling Updates And Health Gates
+    - Blue-Green, Canary And Release Evidence
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-010/module-01/course-01-rolling-updates-and-health-gates.md
+      adapted_from: ATS039/sections/section-010/module-03/course-01-rolling-updates-and-health-gates.md
+    - reading: sections/section-010/module-01/course-02-blue-green-canary-and-release-evidence.md
+      adapted_from: ATS039/sections/section-010/module-03/course-02-blue-green-canary-and-release-evidence.md
+- id: section-020
+  title: Progressive Delivery Patterns
+  curriculum_item: Progressive Delivery Patterns
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: Canary Steps And Blue-Green Service Switching
+    objectives:
+    - Compare incremental canary exposure with blue-green promotion.
+    - Explain stable, canary, active and preview Service relationships.
+    - Relate pauses, weights and scale to actual request distribution.
+    - Evaluate capacity, connection persistence and abort behavior.
+    - Distinguish reusable analysis definitions from individual executions.
+    - Explain metric providers, arguments and success or failure conditions.
+    - Interpret missing data, errors and inconclusive results.
+    - Relate analysis placement and limits to promotion behavior.
+    outline:
+    - Canary Steps And Blue-Green Service Switching
+    - AnalysisTemplate Measurements And AnalysisRun Decisions
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+      adapted_from: ATS062/sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
+    - reading: sections/section-020/module-01/course-02-analysistemplate-measurements-and-analysisrun-decisions.md
+      adapted_from: ATS062/sections/section-030/module-01/course-01-analysistemplate-measurements-and-analysisrun-decisions.md
+- id: section-030
+  title: Pull vs. Event-driven
+  curriculum_item: Pull vs. Event-driven
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: Event-Driven Triggers And Safe Repeated Actions
+    objectives:
+    - Explain why external events can initiate Kubernetes work.
+    - Distinguish event ingestion from task execution.
+    - Define dependency filters and trigger input mapping.
+    - Evaluate authentication, retries and idempotent side effects.
+    - Distinguish an event hint for authoritative retrieval from a one-time pushed deployment.
+    outline:
+    - Event-Driven Triggers And Safe Repeated Actions
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+      adapted_from: ATS063/sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+- id: section-040
+  title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
+  curriculum_item: Architecture Patterns (in-cluster and external reconciler, state store management,
+    etc.)
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: Agent Placement, Repository Layout And Failure Domains
+    objectives:
+    - Compare in-cluster and external reconciliation placement.
+    - Explain repository layout and environment ownership tradeoffs.
+    - Reason about bootstrap, credentials and shared failure impact.
+    outline:
+    - Agent Placement, Repository Layout And Failure Domains
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
+      adapted_from: null
