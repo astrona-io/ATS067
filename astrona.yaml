@@ -35,7 +35,7 @@ modules:
 - id: module-010
   title: Deployment and Release Patterns
   description: Developed reading and reasoning for Deployment and Release Patterns.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: Deployment and Release Patterns
@@ -55,7 +55,7 @@ modules:
 - id: module-020
   title: Progressive Delivery Patterns
   description: Developed reading and reasoning for Progressive Delivery Patterns.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: Progressive Delivery Patterns
@@ -75,7 +75,7 @@ modules:
 - id: module-030
   title: Pull vs. Event-driven
   description: Developed reading and reasoning for Pull vs. Event-driven.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: Pull vs. Event-driven
@@ -93,7 +93,7 @@ modules:
   title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
   description: Developed reading and reasoning for Architecture Patterns (in-cluster and external reconciler,
     state store management, etc.).
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
