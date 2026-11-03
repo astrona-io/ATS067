@@ -50,6 +50,19 @@ sections:
     - Blue-Green And Canary With Services
     playground: true
     module_lab: true
+  - id: module-03
+    title: Recreate, Feature Flags And Traffic Experiments
+    objectives:
+    - Configure the Recreate strategy and explain the downtime it causes.
+    - Release a feature with a flag and explain how a flag reaches a running pod.
+    - Explain why a Service cannot run an A/B release and what shadow traffic tests.
+    outline:
+    - The Recreate Strategy And Planned Downtime
+    - Feature Flags And Dark Launches
+    - A/B Releases And What A Service Cannot Route
+    - Shadow Traffic And Choosing A Strategy
+    playground: true
+    module_lab: true
 - id: section-020
   title: Progressive Delivery Patterns
   curriculum_item: Progressive Delivery Patterns

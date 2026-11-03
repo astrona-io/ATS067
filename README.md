@@ -10,6 +10,7 @@ Each module has reading, a playground and a graded lab. Each section has a capst
 | --- | --- |
 | 010 / 01 | Rolling Updates And Health Gates |
 | 010 / 02 | Blue-Green And Canary With Services |
+| 010 / 03 | Recreate, Feature Flags And Traffic Experiments |
 | 020 / 01 | Canary Steps And Blue-Green With Argo Rollouts |
 | 020 / 02 | AnalysisTemplate And AnalysisRun Decisions |
 | 030 / 01 | Pull-Based Reconciliation With Argo CD |

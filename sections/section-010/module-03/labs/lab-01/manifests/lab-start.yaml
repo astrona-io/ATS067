@@ -1,0 +1,135 @@
+# Starting state of the lab. ledger still uses the RollingUpdate strategy and the flag is off.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger
+  namespace: starfleet
+  labels:
+    app: ledger
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ledger
+  template:
+    metadata:
+      labels:
+        app: ledger
+    spec:
+      containers:
+        - name: ledger
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger
+  namespace: starfleet
+spec:
+  selector:
+    app: ledger
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scout-flags
+  namespace: starfleet
+data:
+  new-checkout: "off"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flagcheck
+  namespace: starfleet
+  labels:
+    app: flagcheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flagcheck
+  template:
+    metadata:
+      labels:
+        app: flagcheck
+    spec:
+      containers:
+        - name: flagcheck
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          env:
+            - name: FLAG_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: scout-flags
+                  key: new-checkout
+          volumeMounts:
+            - name: flags
+              mountPath: /etc/flags
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: flags
+          configMap:
+            name: scout-flags
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Recreate, Feature Flags And Traffic Experiments (PLAYGROUND): a clean sandbox
+# with a Recreate Deployment, a feature flag in a ConfigMap and two versions
+# behind three Services. No task, no grading. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-playground-010-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+  waitFor:
+    - resource: deploy/ledger
+      namespace: starfleet
+    - resource: deploy/flagcheck
+      namespace: starfleet
+    - resource: deploy/scout-a
+      namespace: starfleet
+    - resource: deploy/scout-b
+      namespace: starfleet
+    - resource: deploy/shuttle
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

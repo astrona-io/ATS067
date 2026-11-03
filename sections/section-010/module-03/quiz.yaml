@@ -1,0 +1,254 @@
+# Knowledge check for module 03 of section 010. Listed in astrona.yaml as a `type: quiz` entry.
+---
+schema_version: 1
+kind: question_bank
+id: ats067-010-m03
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: module
+  id: section-010-module-03
+  title: Recreate, Feature Flags And Traffic Experiments
+questions:
+- id: ats067-010-m03-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Describe the order of a Recreate rollout
+  source_readings:
+  - sections/section-010/module-03/course-01-the-recreate-strategy-and-planned-downtime.md
+  prompt: 'A Deployment uses `strategy.type: Recreate` and you change its image. What
+    happens first?'
+  options:
+  - id: a
+    text: The controller scales the old ReplicaSet to 0 and waits for the old pods
+      to terminate.
+    explanation: Correct. New pods start only after the old pods have ended.
+  - id: b
+    text: The controller creates the new pods and keeps the old ones until they are
+      ready.
+    explanation: That is the RollingUpdate order, not Recreate.
+  - id: c
+    text: The controller creates one new pod and then removes one old pod.
+    explanation: That describes a rolling update with maxSurge of 1 and maxUnavailable
+      of 1.
+  - id: d
+    text: The controller waits for a manual approval.
+    explanation: A Deployment never waits for approval.
+  correct_option: a
+  explanation: Correct. New pods start only after the old pods have ended.
+- id: ats067-010-m03-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Change a Deployment from RollingUpdate to Recreate
+  source_readings:
+  - sections/section-010/module-03/course-01-the-recreate-strategy-and-planned-downtime.md
+  prompt: A Deployment has a `rollingUpdate` section. You patch only `spec.strategy.type`
+    to `Recreate`. What is the result?
+  options:
+  - id: a
+    text: The change works and the section is ignored.
+    explanation: The API server validates the combination and refuses it.
+  - id: b
+    text: The Deployment keeps RollingUpdate until the next image change.
+    explanation: It is not ignored. It is invalid.
+  - id: c
+    text: The section is removed by the controller after one minute.
+    explanation: The type is part of the spec, and the API server checks it at once.
+  - id: d
+    text: The API server rejects the change because the rollingUpdate section may
+      not exist with Recreate.
+    explanation: Correct. The patch must also set `rollingUpdate` to null.
+  correct_option: d
+  explanation: Correct. The patch must also set `rollingUpdate` to null.
+- id: ats067-010-m03-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the cost of a Recreate rollback
+  source_readings:
+  - sections/section-010/module-03/course-01-the-recreate-strategy-and-planned-downtime.md
+  prompt: A bad Recreate release is undone with `kubectl rollout undo`. How many periods
+    without ready pods does the whole event cause?
+  options:
+  - id: a
+    text: One, because the rollback needs no pod restart.
+    explanation: The undo restores the earlier pod template, so the pods are replaced.
+  - id: b
+    text: Zero, because a rollback only changes a label.
+    explanation: A rollback changes the pod template and replaces the pods.
+  - id: c
+    text: 'Two: one for the release and one for the rollback.'
+    explanation: Correct. Every Recreate rollout stops the running pods first, including
+      the undo.
+  - id: d
+    text: None, because the old ReplicaSet is still running.
+    explanation: Recreate scaled the old ReplicaSet to 0.
+  correct_option: c
+  explanation: Correct. Every Recreate rollout stops the running pods first, including
+    the undo.
+- id: ats067-010-m03-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Define a dark launch
+  source_readings:
+  - sections/section-010/module-03/course-02-feature-flags-and-dark-launches.md
+  prompt: What is a dark launch?
+  options:
+  - id: a
+    text: Deleting the old version before the new one starts.
+    explanation: That describes the Recreate strategy.
+  - id: b
+    text: Deploying code to production with the feature turned off for users.
+    explanation: Correct. The code runs in production but users do not see the feature.
+  - id: c
+    text: Releasing a feature at night.
+    explanation: The time of day is not part of the meaning.
+  - id: d
+    text: Running a release without monitoring.
+    explanation: Monitoring stays on. The feature is hidden.
+  correct_option: b
+  explanation: Correct. The code runs in production but users do not see the feature.
+- id: ats067-010-m03-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Predict how a ConfigMap change reaches a running pod
+  source_readings:
+  - sections/section-010/module-03/course-02-feature-flags-and-dark-launches.md
+  prompt: A pod copies a ConfigMap key into an environment variable. You change the
+    key in the ConfigMap. What does the running container see?
+  options:
+  - id: a
+    text: The old value, until the pod is replaced.
+    explanation: Correct. A container reads its environment once, when it starts.
+  - id: b
+    text: The new value after about a minute.
+    explanation: That is how a mounted file behaves, not an environment variable.
+  - id: c
+    text: The new value at once.
+    explanation: The kubelet does not update a running container environment.
+  - id: d
+    text: An error, because the variable is now invalid.
+    explanation: The variable keeps its old value.
+  correct_option: a
+  explanation: Correct. A container reads its environment once, when it starts.
+- id: ats067-010-m03-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose the delivery that updates without a restart
+  source_readings:
+  - sections/section-010/module-03/course-02-feature-flags-and-dark-launches.md
+  prompt: Which way of giving a flag to a pod can change in a running container without
+    a restart?
+  options:
+  - id: a
+    text: An environment variable from `configMapKeyRef`.
+    explanation: The environment never changes in a running container.
+  - id: b
+    text: A ConfigMap key mounted with `subPath`.
+    explanation: A subPath file is never refreshed.
+  - id: c
+    text: A value written into the container image.
+    explanation: An image change needs a new rollout.
+  - id: d
+    text: A ConfigMap mounted as a volume, when the application reads the file again.
+    explanation: Correct. The kubelet refreshes mounted files, and the application
+      must read them again.
+  correct_option: d
+  explanation: Correct. The kubelet refreshes mounted files, and the application must
+    read them again.
+- id: ats067-010-m03-q07
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain what a Service routes by
+  source_readings:
+  - sections/section-010/module-03/course-03-a-b-releases-and-what-a-service-cannot-route.md
+  prompt: 'A Service selects two Deployments. A request carries the header `X-Beta-User:
+    true`. What does the header change?'
+  options:
+  - id: a
+    text: The request goes to the Deployment with the most pods.
+    explanation: Endpoint choice does not depend on the Deployment age.
+  - id: b
+    text: The Service rejects the request.
+    explanation: The choice is not weighted by pod count in a way a header can change.
+  - id: c
+    text: Nothing. The Service picks an endpoint per connection and does not read
+      headers.
+    explanation: Correct. Header routing needs a component that reads the HTTP request.
+  - id: d
+    text: The request goes to the newest Deployment.
+    explanation: A Service never inspects headers.
+  correct_option: c
+  explanation: Correct. Header routing needs a component that reads the HTTP request.
+- id: ats067-010-m03-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare a canary and an A/B release
+  source_readings:
+  - sections/section-010/module-03/course-03-a-b-releases-and-what-a-service-cannot-route.md
+  prompt: How does an A/B release differ from a canary release?
+  options:
+  - id: a
+    text: It sends all users to the new version at once.
+    explanation: That describes a blue-green switch.
+  - id: b
+    text: It keeps stable groups of users apart to compare a business result, while
+      a canary checks the safety of a version.
+    explanation: Correct. The goal and the assignment rule differ.
+  - id: c
+    text: It always needs twice the capacity.
+    explanation: Capacity depends on the router and the pods, not on the pattern name.
+  - id: d
+    text: It never uses Kubernetes objects.
+    explanation: It still runs on Deployments and Services.
+  correct_option: b
+  explanation: Correct. The goal and the assignment rule differ.
+- id: ats067-010-m03-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Describe shadow traffic
+  source_readings:
+  - sections/section-010/module-03/course-04-shadow-traffic-and-choosing-a-strategy.md
+  prompt: What happens to the response of the mirror in shadow traffic?
+  options:
+  - id: a
+    text: The router discards it and returns the response of the primary to the client.
+    explanation: Correct. Users never see the answer of the new version.
+  - id: b
+    text: The router returns the faster of the two responses.
+    explanation: The primary always answers the client.
+  - id: c
+    text: The router merges both responses.
+    explanation: No router merges responses.
+  - id: d
+    text: The client receives both responses.
+    explanation: The client receives one response.
+  correct_option: a
+  explanation: Correct. Users never see the answer of the new version.
+- id: ats067-010-m03-q10
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Name a limit of shadow traffic
+  source_readings:
+  - sections/section-010/module-03/course-04-shadow-traffic-and-choosing-a-strategy.md
+  prompt: A team mirrors all production requests to a new version that writes orders
+    to the real database. What is the problem?
+  options:
+  - id: a
+    text: The mirror cannot read requests.
+    explanation: The mirror reads a full copy.
+  - id: b
+    text: Mirroring removes the load from the primary.
+    explanation: The primary load stays the same, and the total load grows.
+  - id: c
+    text: Mirrored requests are always read-only.
+    explanation: A copy has the same method and body as the original.
+  - id: d
+    text: Each mirrored write is a real request, so the order is created twice.
+    explanation: Correct. Mirror only requests without side effects, or isolate the
+      new version from production data.
+  correct_option: d
+  explanation: Correct. Mirror only requests without side effects, or isolate the
+    new version from production data.

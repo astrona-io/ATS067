@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Recreate A Deployment And Turn On A Feature Flag (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-010-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the ledger Deployment, the flag ConfigMap and the flag reader
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: ledger and flagcheck exist and are available
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Do not delete a Deployment. Change the strategy, the image and the ConfigMap only.
+    - name: ledger-recreate
+      description: ledger uses the Recreate strategy and runs podinfo 6.14.0 with 2 ready replicas
+      type: file
+      source: validation/validate-ledger-recreate.sh
+      hint: A merge patch can set the type and remove the rollingUpdate section with null.
+    - name: flag-live
+      description: The flag is on in the ConfigMap, in the mounted file and in the environment variable of the running pod
+      type: file
+      source: validation/validate-flag-live.sh
+      hint: A running container never changes its environment. Replace the pods of flagcheck.
+    - name: release-evidence
+      description: The ConfigMap release-evidence matches the live cluster
+      type: file
+      source: validation/validate-release-evidence.sh
+      hint: Read the strategy type and the image from the Deployment ledger.
+
+teardown:
+  keepCluster: false

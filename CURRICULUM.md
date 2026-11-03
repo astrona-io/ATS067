@@ -6,7 +6,7 @@ The [official objectives](https://training.linuxfoundation.org/certification/cer
 
 | Section | Official objective | Modules |
 | --- | --- | --- |
-| 010 | Deployment and Release Patterns | 2 |
+| 010 | Deployment and Release Patterns | 3 |
 | 020 | Progressive Delivery Patterns | 2 |
 | 030 | Pull vs. Event-driven | 2 |
 | 040 | Architecture Patterns (in-cluster and external reconciler, state store management, etc.) | 2 |
@@ -15,6 +15,7 @@ The [official objectives](https://training.linuxfoundation.org/certification/cer
 | --- | --- |
 | 010 / 01 | Rolling Updates And Health Gates |
 | 010 / 02 | Blue-Green And Canary With Services |
+| 010 / 03 | Recreate, Feature Flags And Traffic Experiments |
 | 020 / 01 | Canary Steps And Blue-Green With Argo Rollouts |
 | 020 / 02 | AnalysisTemplate And AnalysisRun Decisions |
 | 030 / 01 | Pull-Based Reconciliation With Argo CD |

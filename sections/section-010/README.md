@@ -21,6 +21,7 @@ This section teaches you how a release moves from the old version to the new one
 - Run a blue-green release with two Deployments and switch a Service selector.
 - Run a canary release by replica ratio and compute its traffic share from the ready endpoints.
 - Record evidence for a release in a ConfigMap that matches the live cluster.
+- Configure the Recreate strategy, release code behind a feature flag and explain why a Service cannot route an A/B release.
 
 ---
 
@@ -47,6 +48,18 @@ This section teaches you how a release moves from the old version to the new one
 *   **Lab:** `sections/section-010/module-02/labs/lab-01` (UNTESTED)
     ```bash
     astrona run --git ssh://git@github.com/astrona-io/ATS067.git -c sections/section-010/module-02/labs/lab-01
+    astrona submit -c .
+    ```
+
+### 3. Recreate, Feature Flags And Traffic Experiments
+*   **Module Reader:** **[Module 3: Recreate, Feature Flags And Traffic Experiments](./module-03/course.md)**
+*   **Hands-on Playground:** `sections/section-010/module-03/playground` - kind cluster. A Recreate Deployment, a feature flag in a ConfigMap and two versions behind three Services are ready to change.
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS067.git -c sections/section-010/module-03/playground
+    ```
+*   **Lab:** `sections/section-010/module-03/labs/lab-01` (UNTESTED)
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS067.git -c sections/section-010/module-03/labs/lab-01
     astrona submit -c .
     ```
 
