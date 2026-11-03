@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Blue-Green And Canary With Services (PLAYGROUND): a clean sandbox with a
+# blue and a green version, an active and a preview Service, and a stable and
+# a canary Deployment behind one Service. No task, no grading. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-playground-010-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+  waitFor:
+    - resource: deploy/scout-blue
+      namespace: starfleet
+    - resource: deploy/scout-green
+      namespace: starfleet
+    - resource: deploy/probe-stable
+      namespace: starfleet
+    - resource: deploy/shuttle
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

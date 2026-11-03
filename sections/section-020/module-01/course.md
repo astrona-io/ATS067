@@ -1,29 +1,29 @@
 ---
 draft: true
 exam_objectives:
-- Progressive Delivery Patterns
+  - Progressive Delivery Patterns
 ---
-# Canary Steps And Blue-Green Service Switching
+# Canary Steps And Blue-Green With Argo Rollouts
 
-This module develops canary Steps And Blue-Green Service Switching. Use the explanations to connect intended behavior with responsible components and observable evidence.
+This module explains how Argo Rollouts turns a pod template change into a staged release. You will read how the controller creates ReplicaSets, how canary steps become pod counts, and how a blue-green release uses an active and a preview Service. The hands-on steps use a kind cluster with the Argo Rollouts controller installed.
 
 ## Learning Goals
 
-- Compare incremental canary exposure with blue-green promotion.
-- Explain stable, canary, active and preview Service relationships.
-- Relate pauses, weights and scale to actual request distribution.
-- Evaluate capacity, connection persistence and abort behavior.
-- Distinguish reusable analysis definitions from individual executions.
-- Explain metric providers, arguments and success or failure conditions.
-- Interpret missing data, errors and inconclusive results.
-- Relate analysis placement and limits to promotion behavior.
+- Explain how a Rollout owns ReplicaSets and how the hash label separates versions.
+- Read `status.stableRS`, `status.currentPodHash`, `status.currentStepIndex` and the pause conditions of a Rollout.
+- Calculate the canary pod counts that a `setWeight` step produces without a traffic router.
+- Describe how the stable, canary, active and preview Services get their selectors.
+- Run a blue-green release that waits before the switch and read which Service reaches which version.
+- Explain what `scaleDownDelaySeconds` protects and why a preview test is not production proof.
 
 ## Before You Start
 
-Examples illustrate declared relationships and reasoning. No execution environment is required or claimed.
+You should know what a Deployment, a ReplicaSet and a Service selector are. The hands-on steps use a playground with `kubectl`. The Argo Rollouts kubectl plugin is not installed, so every check reads the Rollout resource directly.
 
 ## Reading Order
 
-1. Canary Steps And Blue-Green Service Switching
-2. AnalysisTemplate Measurements And AnalysisRun Decisions
+1. Canary Steps And Replica Weights
+2. Blue-Green With Active And Preview Services
 3. Summary
+
+<!-- astrona:playground -->

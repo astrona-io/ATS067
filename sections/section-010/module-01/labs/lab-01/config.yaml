@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A Stuck Rollout And Roll Back A Bad Release (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-010-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the healthy Deployments and start two faulty updates
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: scout, probe and shuttle still exist with their replica counts
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Fix the settings. Do not delete or scale the Deployments.
+    - name: scout-rollout-complete
+      description: The scout rollout finished with version-2 and 3 ready pods
+      type: file
+      source: validation/validate-scout-rollout-complete.sh
+      hint: Read the events of the new scout pod. The readiness probe path is wrong.
+    - name: scout-rollout-settings
+      description: scout uses maxSurge 1, maxUnavailable 0, minReadySeconds 5 or more and a deadline of 180 seconds or less
+      type: file
+      source: validation/validate-scout-rollout-settings.sh
+      hint: Set the strategy fields, minReadySeconds and progressDeadlineSeconds on the Deployment.
+    - name: probe-rolled-back
+      description: probe runs the good image again through a rollback and is ready
+      type: file
+      source: validation/validate-probe-rolled-back.sh
+      hint: Use kubectl rollout history and kubectl rollout undo for the Deployment probe.
+    - name: release-record
+      description: The ConfigMap release-record holds the live revisions and a UTC time
+      type: file
+      source: validation/validate-release-record.sh
+      hint: Read the annotation deployment.kubernetes.io/revision of scout and probe after the fixes.
+
+teardown:
+  keepCluster: false

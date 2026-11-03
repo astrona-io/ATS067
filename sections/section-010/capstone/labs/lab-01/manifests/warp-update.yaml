@@ -1,0 +1,45 @@
+# The faulty update of warp: new image and message, but a readiness probe path
+# that the application does not serve. The rolling update settings stay as they
+# are (maxSurge 0, maxUnavailable 1), so the rollout removes a serving pod first.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warp
+  namespace: starfleet
+  labels:
+    app: warp
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: warp
+  template:
+    metadata:
+      labels:
+        app: warp
+    spec:
+      containers:
+        - name: warp
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: version-2
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /ready-check
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi

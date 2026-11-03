@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Build A Safe Event Path From A Webhook To A Patch (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-030-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - quay.io/argoproj/argo-events:v1.9.11
+      - nats:2.10.29
+      - natsio/prometheus-nats-exporter:0.14.0
+      - natsio/nats-server-config-reloader:0.14.0
+
+bootstrap:
+  init:
+    - name: install-argo-events
+      description: Install Argo Events and the EventBus
+      type: file
+      source: bootstrap/03-install-argo-events.sh
+    - name: seed-cluster
+      description: Create the client, the permissions and deploy-state
+      type: file
+      source: bootstrap/02-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: The controller, the EventBus, the client and deploy-state exist
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Do not delete the EventBus or deploy-state.
+    - name: eventsource-defined
+      description: The EventSource fleet-hook has the webhook entry deploy and a Service
+      type: file
+      source: validation/validate-eventsource-defined.sh
+      hint: Define a webhook entry named deploy on port 12000 with the endpoint /deploy and the method POST, and add spec.service.
+    - name: sensor-defined
+      description: The Sensor fleet-sensor filters on main and patches deploy-state
+      type: file
+      source: validation/validate-sensor-defined.sh
+      hint: Use a data filter on body.ref, the ServiceAccount sensor-runner and a k8s trigger with operation patch.
+    - name: event-applied
+      description: An event updated deploy-state and no generated copies exist
+      type: file
+      source: validation/validate-event-applied.sh
+      hint: Send the event with ref main and service scout from the client pod.
+
+teardown:
+  keepCluster: false

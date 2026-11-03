@@ -1,0 +1,325 @@
+# Knowledge check for section 040. Listed in astrona.yaml as a `type: quiz` entry.
+schema_version: 1
+kind: question_bank
+id: ats067-040
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-040
+  title: "Architecture Patterns"
+questions:
+  - id: ats067-040-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Compare reconciler placements"
+    source_readings:
+      - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+    prompt: |-
+      A team wants no cluster to accept a connection from any other cluster or from a shared management system. Which placement fits?
+    options:
+      - id: a
+        text: "One Argo CD that reads a cluster list from Git and logs in with a shared password."
+        explanation: "This is still a hub that connects to every cluster."
+      - id: b
+        text: "One Argo CD per cluster, each managing only its own cluster through the in-cluster destination."
+        explanation: "Correct. The credential for the cluster API stays inside the cluster and no outside system connects to it."
+      - id: c
+        text: "One hub Argo CD that manages all clusters."
+        explanation: "The hub connects to each target API server, so each cluster accepts the hub."
+      - id: d
+        text: "A CI job that runs `kubectl apply` against each cluster."
+        explanation: "The CI system then holds a credential for every cluster and connects to each API server."
+    correct_option: b
+    explanation: "The in-cluster form keeps cluster credentials inside the cluster."
+
+  - id: ats067-040-q02
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Register a remote cluster"
+    source_readings:
+      - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+    prompt: |-
+      How does a hub Argo CD learn the address and credential of a target cluster?
+    options:
+      - id: a
+        text: "From the `Application`, which carries the token in `spec.destination`."
+        explanation: "The destination holds only the server or name and a namespace."
+      - id: b
+        text: "From the `AppProject`, which stores a kubeconfig."
+        explanation: "A project limits what an application may do. It does not hold credentials."
+      - id: c
+        text: "From the kubelet of the target nodes."
+        explanation: "The kubelet is not involved."
+      - id: d
+        text: "From a Secret in `argocd` labeled `argocd.argoproj.io/secret-type: cluster` with the keys `name`, `server` and `config`."
+        explanation: "Correct. `argocd cluster add` creates this Secret, and you can also apply it from a manifest."
+    correct_option: d
+    explanation: "Cluster credentials are Secrets, selected by a label."
+
+  - id: ats067-040-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Predict a controller failure"
+    source_readings:
+      - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+    prompt: |-
+      The `argocd-application-controller` is scaled to zero. What happens to the running pods of the managed applications?
+    options:
+      - id: a
+        text: "They keep running. Comparison, status updates and self-heal stop until the controller returns."
+        explanation: "Correct. Argo CD is a control plane and the workloads do not depend on it to serve."
+      - id: b
+        text: "They are deleted, because the owner of the applications is gone."
+        explanation: "Deleting the controller deletes nothing in the target."
+      - id: c
+        text: "They are restarted every minute until the controller returns."
+        explanation: "Nothing restarts them."
+      - id: d
+        text: "They are moved to the `default` project."
+        explanation: "Pods do not belong to projects."
+    correct_option: a
+    explanation: "A stopped control plane freezes the state. It does not remove it."
+
+  - id: ats067-040-q04
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "State what Redis holds"
+    source_readings:
+      - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+    prompt: |-
+      The `argocd-redis` Deployment is deleted. What is lost permanently?
+    options:
+      - id: a
+        text: "The repository credentials."
+        explanation: "They are Secrets in `argocd`."
+      - id: b
+        text: "The commit history of the repository."
+        explanation: "History lives in Git."
+      - id: c
+        text: "Nothing. It holds a cache of manifests and live state that the components rebuild."
+        explanation: "Correct. The state that matters is in Git and in the `Application` objects."
+      - id: d
+        text: "All `Application` objects."
+        explanation: "They are Kubernetes objects stored by the API server, not in Redis."
+    correct_option: c
+    explanation: "Redis is a rebuildable cache."
+
+  - id: ats067-040-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read an AppProject"
+    source_readings:
+      - sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+    prompt: |-
+      An `AppProject` has `destinations` with one entry: the in-cluster server and the namespace `starfleet`. An `Application` in this project targets the namespace `vault`. What does the controller do?
+    options:
+      - id: a
+        text: "It syncs the Application and creates the namespace `vault`."
+        explanation: "The project check comes first and refuses the destination."
+      - id: b
+        text: "It deletes the Application."
+        explanation: "The controller only reports the condition."
+      - id: c
+        text: "It changes the destination to `starfleet`."
+        explanation: "Argo CD never edits the spec of an Application to fit a project."
+      - id: d
+        text: "It sets an `InvalidSpecError` condition on the Application and does not sync it."
+        explanation: "Correct. The destination is not permitted in the project."
+    correct_option: d
+    explanation: "A project is checked before a sync. A refused application stays in the list with a condition."
+
+  - id: ats067-040-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "State the default for cluster-scoped kinds"
+    source_readings:
+      - sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+    prompt: |-
+      An `AppProject` sets no `clusterResourceWhitelist`. Can an application of this project deploy a `ClusterRole`?
+    options:
+      - id: a
+        text: "No, and neither can it deploy a `Deployment`."
+        explanation: "Namespaced kinds are allowed unless a namespace whitelist or blacklist is set."
+      - id: b
+        text: "No. Without a whitelist, cluster-scoped kinds are denied. Namespaced kinds stay allowed."
+        explanation: "Correct. A whitelist must list each cluster-scoped kind that is allowed."
+      - id: c
+        text: "Yes, because an empty list allows everything."
+        explanation: "That is true only for the project `default`, which sets its own wildcard entries."
+      - id: d
+        text: "Yes, but only in the namespace of the destination."
+        explanation: "A ClusterRole has no namespace."
+    correct_option: b
+    explanation: "The default for cluster-scoped kinds in a custom project is deny."
+
+  - id: ats067-040-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Effect of a project change on live objects"
+    source_readings:
+      - sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+    prompt: |-
+      An application already synced to `vault` is moved to a project that allows only `starfleet`. What happens to the objects in `vault`?
+    options:
+      - id: a
+        text: "They are moved to `starfleet`."
+        explanation: "Objects are never moved."
+      - id: b
+        text: "They are restarted with the new project label."
+        explanation: "The project is not a label on the objects."
+      - id: c
+        text: "They stay. The project blocks future syncs and does not delete live objects."
+        explanation: "Correct. Removing the objects needs a delete or a sync with prune that the project allows."
+      - id: d
+        text: "They are deleted by the next reconciliation."
+        explanation: "A project is a gate, not a cleanup tool."
+    correct_option: c
+    explanation: "A project limits future changes only."
+
+  - id: ats067-040-q08
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the repository credential form"
+    source_readings:
+      - sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+    prompt: |-
+      How does Argo CD store the username and password for a private Git repository?
+    options:
+      - id: a
+        text: "In a Secret in `argocd` with the label `argocd.argoproj.io/secret-type: repository` and the keys `url`, `username` and `password`."
+        explanation: "Correct. The `url` is matched with `spec.source.repoURL`."
+      - id: b
+        text: "In the `repoURL` of each Application as `user:password@host`."
+        explanation: "That puts a credential into an object that many people can read."
+      - id: c
+        text: "In the `AppProject` under `sourceRepos`."
+        explanation: "`sourceRepos` lists allowed URLs and holds no credentials."
+      - id: d
+        text: "In a ConfigMap that is encrypted by Kubernetes."
+        explanation: "Credentials are Secrets, which are base64 text unless encryption at rest is set."
+    correct_option: a
+    explanation: "Repository credentials are labeled Secrets."
+
+  - id: ats067-040-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read a Kustomize overlay"
+    source_readings:
+      - sections/section-040/module-02/course-01-kustomize-bases-overlays-and-repository-layout.md
+    prompt: |-
+      An overlay `kustomization.yaml` lists `../../base/scout` in `resources` and sets `namespace: scout-prod`. What does `kubectl kustomize` print for it?
+    options:
+      - id: a
+        text: "An error, because an overlay cannot refer to a folder above it."
+        explanation: "A path to a folder in `resources` is allowed."
+      - id: b
+        text: "The objects of the base with the namespace `scout-prod` set on every namespaced object."
+        explanation: "Correct. The overlay changes the base without editing its files."
+      - id: c
+        text: "Only the objects that are written in the overlay file."
+        explanation: "Resources from the base are included."
+      - id: d
+        text: "The base unchanged, because a namespace is not a patch."
+        explanation: "The `namespace` field is a transformer that is applied."
+    correct_option: b
+    explanation: "An overlay is built from its resources and its transformers."
+
+  - id: ats067-040-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Choose a promotion layout"
+    source_readings:
+      - sections/section-040/module-02/course-01-kustomize-bases-overlays-and-repository-layout.md
+    prompt: |-
+      Why do many teams avoid a long-lived branch per environment?
+    options:
+      - id: a
+        text: "Argo CD cannot read any branch except `main`."
+        explanation: "`targetRevision` can name any branch, tag or commit."
+      - id: b
+        text: "A branch cannot be protected from direct pushes."
+        explanation: "Branches can be protected."
+      - id: c
+        text: "Promotion is a merge that carries unrelated differences and conflicts, and the branches slowly stop being equal where they should be equal."
+        explanation: "Correct. Folders in one branch keep one history and a plain comparison."
+      - id: d
+        text: "Git cannot hold more than one long-lived branch."
+        explanation: "Git holds any number of branches."
+    correct_option: c
+    explanation: "The cost of a branch per environment is the merge."
+
+  - id: ats067-040-q11
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Undo a commit"
+    source_readings:
+      - sections/section-040/module-02/course-02-promotion-revert-and-git-as-the-state-store.md
+    prompt: |-
+      A faulty commit on a shared `main` was already applied. Which action undoes it and keeps the history?
+    options:
+      - id: a
+        text: "Scale the Deployment by hand."
+        explanation: "With self-heal on, the controller reverts it."
+      - id: b
+        text: "`git revert <commit>` and a normal push. A new commit applies the opposite change."
+        explanation: "Correct. The reconciler compares the new head and applies the opposite change."
+      - id: c
+        text: "`git reset --hard` to the earlier commit and a forced push."
+        explanation: "This rewrites the shared branch and breaks clones and tools that knew the old head."
+      - id: d
+        text: "Delete the Application and create it again."
+        explanation: "The Application only points at Git. The faulty commit is still in `main`."
+    correct_option: b
+    explanation: "A revert is a forward change."
+
+  - id: ats067-040-q12
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Promote safely"
+    source_readings:
+      - sections/section-040/module-02/course-02-promotion-revert-and-git-as-the-state-store.md
+    prompt: |-
+      A change worked in `dev`. Which commit promotes it to `prod` with the least side effects?
+    options:
+      - id: a
+        text: "A commit that edits the base, so that every environment gets the value."
+        explanation: "Every environment changes, including those that were not meant to."
+      - id: b
+        text: "A `kubectl patch` against the production Deployment."
+        explanation: "It has no author, no review and no history, and self-heal removes it."
+      - id: c
+        text: "A new build from source that is tagged the same."
+        explanation: "This promotes something other than what was tested."
+      - id: d
+        text: "A commit that sets the tested value in the prod overlay only."
+        explanation: "Correct. It changes one environment, and the history shows who promoted what and when."
+    correct_option: d
+    explanation: "Promote the tested value in the target overlay."
+
+  - id: ats067-040-q13
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Decide what belongs in Git"
+    source_readings:
+      - sections/section-040/module-02/course-02-promotion-revert-and-git-as-the-state-store.md
+    prompt: |-
+      A team wants the database password for the application deployed by Git. Which approach keeps the password out of the history?
+    options:
+      - id: a
+        text: "Commit the secret encrypted so that only a controller in the cluster can decrypt it, or commit a reference that a controller resolves from an external store."
+        explanation: "Correct. Git then holds no usable secret value."
+      - id: b
+        text: "Commit the Secret in base64, because base64 is encryption."
+        explanation: "Base64 is an encoding and anyone can decode it."
+      - id: c
+        text: "Commit the password and delete it in the next commit."
+        explanation: "History keeps every version of the file."
+      - id: d
+        text: "Put the password in the `Application` name."
+        explanation: "It would be readable by everyone who lists applications."
+    correct_option: a
+    explanation: "A secret in history stays there."
+

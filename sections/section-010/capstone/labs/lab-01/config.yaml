@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Section capstone: Repair And Release A Starfleet Workload Set (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-capstone-010
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads and start two faulty updates
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: All Deployments exist with their replica counts
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Fix the settings and the Service. Do not delete or scale the Deployments.
+    - name: warp-rollout-complete
+      description: The warp rollout finished with version-2 and 3 ready pods
+      type: file
+      source: validation/validate-warp-rollout-complete.sh
+      hint: Read the events of the new warp pod. The readiness probe path is wrong.
+    - name: warp-rollout-settings
+      description: warp uses maxSurge 1, maxUnavailable 0, minReadySeconds 5 or more and a deadline of 180 seconds or less
+      type: file
+      source: validation/validate-warp-rollout-settings.sh
+      hint: Set the strategy fields, minReadySeconds and progressDeadlineSeconds on the Deployment.
+    - name: impulse-rolled-back
+      description: impulse runs the good image again through a rollback and is ready
+      type: file
+      source: validation/validate-impulse-rolled-back.sh
+      hint: Use kubectl rollout history and kubectl rollout undo for the Deployment impulse.
+    - name: shield-switched
+      description: The Service shield serves the green pods and blue stays ready
+      type: file
+      source: validation/validate-shield-switched.sh
+      hint: Change the track label in the selector of the Service shield.
+    - name: release-record
+      description: The ConfigMap release-record holds the live revisions, the live track and a UTC time
+      type: file
+      source: validation/validate-release-record.sh
+      hint: Write the record last, after every fix, because the revisions must match the live state.
+
+teardown:
+  keepCluster: false

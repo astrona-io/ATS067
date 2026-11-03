@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: crew
+  namespace: argocd
+spec:
+  description: Applications of the crew team
+  sourceRepos:
+    - http://gitea-http.gitea.svc:3000/starfleet/fleet-config.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: starfleet
+  clusterResourceWhitelist: []

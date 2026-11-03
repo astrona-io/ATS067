@@ -1,0 +1,241 @@
+# Example app for the blue-green and canary playground. scout-blue and
+# scout-green are two complete versions behind the Services scout (blue) and
+# scout-preview (green). probe-stable and probe-canary share one Service; the
+# canary starts with 0 replicas.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout-blue
+  namespace: starfleet
+  labels:
+    app: scout
+    track: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scout
+      track: blue
+  template:
+    metadata:
+      labels:
+        app: scout
+        track: blue
+    spec:
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: blue
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout-green
+  namespace: starfleet
+  labels:
+    app: scout
+    track: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scout
+      track: green
+  template:
+    metadata:
+      labels:
+        app: scout
+        track: green
+    spec:
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.14.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: green
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scout
+  namespace: starfleet
+spec:
+  selector:
+    app: scout
+    track: blue
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scout-preview
+  namespace: starfleet
+spec:
+  selector:
+    app: scout
+    track: green
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe-stable
+  namespace: starfleet
+  labels:
+    app: probe
+    track: stable
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: probe
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: probe
+        track: stable
+    spec:
+      containers:
+        - name: probe
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: stable
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe-canary
+  namespace: starfleet
+  labels:
+    app: probe
+    track: canary
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: probe
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: probe
+        track: canary
+    spec:
+      containers:
+        - name: probe
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: canary
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: probe
+  namespace: starfleet
+spec:
+  selector:
+    app: probe
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

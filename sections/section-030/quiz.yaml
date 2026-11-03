@@ -1,0 +1,253 @@
+# Knowledge check for section 030. Listed in astrona.yaml as a `type: quiz` entry.
+schema_version: 1
+kind: question_bank
+id: ats067-030
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-030
+  title: "Pull-Based Reconciliation and Event-Driven Delivery"
+questions:
+  - id: ats067-030-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Describe the pull loop"
+    source_readings:
+      - sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+    prompt: |-
+      An Argo CD Application points at a Git repository and a namespace. Which component compares the two and who starts the comparison?
+    options:
+      - id: a
+        text: "The kubelet on each node reads the repository."
+        explanation: "The kubelet runs pods and does not read Git."
+      - id: b
+        text: "The Argo CD controller inside the cluster reads Git, reads the live objects and compares them on its own schedule. Nothing outside needs cluster credentials."
+        explanation: "Correct. The reconciler runs in the cluster and pulls the desired state."
+      - id: c
+        text: "A CI job pushes manifests into the cluster with `kubectl apply` after each commit."
+        explanation: "That is the push model. Argo CD does not need a CI job to apply."
+      - id: d
+        text: "The Git server calls the Kubernetes API when a commit arrives."
+        explanation: "Git does not know about the cluster. The controller fetches from Git."
+    correct_option: b
+    explanation: "In the pull model the reconciler is inside the cluster and reads Git."
+
+  - id: ats067-030-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Read the sync status"
+    source_readings:
+      - sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+    prompt: |-
+      A commit changes `replicas` from 2 to 3 and the Application has manual sync. What does `status.sync.status` show after Argo CD fetches the commit?
+    options:
+      - id: a
+        text: "`Synced`, because the commit was fetched."
+        explanation: "Synced means live equals desired. The live Deployment still has 2 replicas."
+      - id: b
+        text: "`Unknown`, because manual sync disables comparison."
+        explanation: "Comparison still runs. Only the apply step is manual."
+      - id: c
+        text: "`Degraded`, because the Deployment is unhealthy."
+        explanation: "Degraded is a health value. The pods are healthy, only different from Git."
+      - id: d
+        text: "`OutOfSync`, because the live Deployment differs from the desired state in Git."
+        explanation: "Correct. Manual sync reports the difference and waits for a sync."
+    correct_option: d
+    explanation: "Sync status compares live with desired. Health describes the running state."
+
+  - id: ats067-030-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain the reconciliation timer"
+    source_readings:
+      - sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+    prompt: |-
+      A commit lands in Git and no webhook is configured. About how long can Argo CD take to notice it, and how can you make it look at once?
+    options:
+      - id: a
+        text: "Up to about 3 minutes by default. Annotating the Application with `argocd.argoproj.io/refresh=hard` forces an immediate fetch and compare."
+        explanation: "Correct. The default reconciliation interval is 3 minutes. The annotation triggers a refresh."
+      - id: b
+        text: "Never, because polling is disabled without a webhook."
+        explanation: "The controller polls by default."
+      - id: c
+        text: "Exactly 1 second, because Git pushes notify the controller."
+        explanation: "Without a webhook there is no push notification."
+      - id: d
+        text: "Only after `kubectl rollout restart` on the controller."
+        explanation: "A restart is not needed. Use the refresh annotation."
+    correct_option: a
+    explanation: "Polling is the fallback. A refresh annotation or a webhook shortens the delay."
+
+  - id: ats067-030-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Compare manual and automated sync"
+    source_readings:
+      - sections/section-030/module-01/course-02-sync-policies-manual-automated-prune-and-self-heal.md
+    prompt: |-
+      An Application has `syncPolicy.automated: {}`. Someone deletes the file `old-flags.yaml` from Git. What happens to the live ConfigMap `old-flags`?
+    options:
+      - id: a
+        text: "It is deleted by the Kubernetes garbage collector."
+        explanation: "Garbage collection follows owner references, not Git."
+      - id: b
+        text: "The Application becomes `Degraded` and stops syncing."
+        explanation: "The object is shown as requiring pruning. The Application keeps syncing."
+      - id: c
+        text: "It stays. `prune` defaults to false, so automated sync applies changes but does not delete objects that left Git."
+        explanation: "Correct. Deletion needs `automated.prune: true`."
+      - id: d
+        text: "It is deleted at the next sync, because automated sync always prunes."
+        explanation: "Prune is off unless it is set."
+    correct_option: c
+    explanation: "Automated sync without prune never removes objects."
+
+  - id: ats067-030-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain self-heal"
+    source_readings:
+      - sections/section-030/module-01/course-02-sync-policies-manual-automated-prune-and-self-heal.md
+    prompt: |-
+      An Application has `automated: {prune: true}` without `selfHeal`. An operator scales the live Deployment by hand. What does Argo CD do?
+    options:
+      - id: a
+        text: "It reverts the replica count within seconds."
+        explanation: "That needs `selfHeal: true`."
+      - id: b
+        text: "It deletes the Deployment because it drifted."
+        explanation: "Prune only removes objects that are not in Git."
+      - id: c
+        text: "It copies the live count into Git."
+        explanation: "Argo CD never writes to Git here."
+      - id: d
+        text: "It reports `OutOfSync` and does not revert the change. Self-heal is needed to revert live edits that Git did not change."
+        explanation: "Correct. Automated sync reacts to Git changes. `selfHeal: true` also reacts to live drift."
+    correct_option: d
+    explanation: "Self-heal is the setting that overwrites live edits."
+
+  - id: ats067-030-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "State what CreateNamespace does"
+    source_readings:
+      - sections/section-030/module-01/course-02-sync-policies-manual-automated-prune-and-self-heal.md
+    prompt: |-
+      An Application sets `syncOptions: [CreateNamespace=true]` and the destination namespace does not exist. What happens at sync?
+    options:
+      - id: a
+        text: "The namespace is created and deleted again after the sync."
+        explanation: "It is kept. Deleting the Application with the finalizer can remove it only if the namespace is part of the resources."
+      - id: b
+        text: "Argo CD creates the namespace before it applies the manifests."
+        explanation: "Correct. Without the option the sync fails because the namespace is missing."
+      - id: c
+        text: "The sync fails with a namespace not found error."
+        explanation: "That happens only without the option."
+      - id: d
+        text: "The manifests are applied to `default` instead."
+        explanation: "The destination namespace is used as written."
+    correct_option: b
+    explanation: "The option lets a sync create the missing namespace."
+
+  - id: ats067-030-q07
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the three parts of Argo Events"
+    source_readings:
+      - sections/section-030/module-02/course-01-event-sources-the-event-bus-and-the-shape-of-an-event.md
+    prompt: |-
+      In Argo Events, which object listens for the outside call, which object carries the event and which one decides what to do?
+    options:
+      - id: a
+        text: "The EventBus listens and the Sensor creates the Service."
+        explanation: "The EventSource listens and creates its Service."
+      - id: b
+        text: "The Application listens and the Sensor syncs it."
+        explanation: "An Application is an Argo CD object."
+      - id: c
+        text: "An EventSource listens, the EventBus carries the event and a Sensor decides which action to run."
+        explanation: "Correct. The three parts are separate objects."
+      - id: d
+        text: "The Sensor listens, the EventSource carries and the EventBus acts."
+        explanation: "The roles are swapped. The Sensor consumes events and runs triggers."
+    correct_option: c
+    explanation: "EventSource produces, EventBus transports, Sensor consumes and triggers."
+
+  - id: ats067-030-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the event shape"
+    source_readings:
+      - sections/section-030/module-02/course-01-event-sources-the-event-bus-and-the-shape-of-an-event.md
+    prompt: |-
+      A webhook EventSource receives a POST with the JSON `{"ref":"main"}`. How does a Sensor address the value `main`?
+    options:
+      - id: a
+        text: "With the `dataKey` `body.ref`. The webhook payload is split into `header` and `body`."
+        explanation: "Correct. The event data holds `header` and `body`, and the JSON is under `body`."
+      - id: b
+        text: "With the `dataKey` `ref`, because the body is the root."
+        explanation: "The body sits under `body`."
+      - id: c
+        text: "With the `dataKey` `payload.ref`."
+        explanation: "The key is `body`."
+      - id: d
+        text: "With the `dataKey` `data.ref`."
+        explanation: "The wrapper is not named data in the key."
+    correct_option: a
+    explanation: "Webhook data has header and body."
+
+  - id: ats067-030-q09
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Choose an idempotent trigger"
+    source_readings:
+      - sections/section-030/module-02/course-02-sensors-triggers-and-safe-repeated-actions.md
+    prompt: |-
+      Events are delivered at least once, and a Sensor must record a release in the cluster. Which trigger stays correct when the same event arrives twice?
+    options:
+      - id: a
+        text: "A `delete` of the ConfigMap followed by a create."
+        explanation: "That is not atomic and leaves gaps."
+      - id: b
+        text: "A `patch` of one named ConfigMap, because a second patch writes the same values and changes nothing."
+        explanation: "Correct. The same input gives the same end state."
+      - id: c
+        text: "A `create` with `generateName`, because each event gets its own object."
+        explanation: "A duplicate event then creates a second object."
+      - id: d
+        text: "A `create` of a ConfigMap with a fixed name, because it fails on the second event."
+        explanation: "That fails and may retry. It does not give a clean repeat."
+    correct_option: b
+    explanation: "At-least-once delivery requires triggers that tolerate repeats."
+
+  - id: ats067-030-q10
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Filter events in a Sensor"
+    source_readings:
+      - sections/section-030/module-02/course-02-sensors-triggers-and-safe-repeated-actions.md
+    prompt: |-
+      A Sensor must act only on pushes to `main`. Where does the Sensor express that, and what happens to an event for `dev`?
+    options:
+      - id: a
+        text: "In the trigger, which runs and then reverts the change."
+        explanation: "The trigger does not run for a filtered event."
+      - id: b
+        text: "In the EventBus, which stores `dev` for a later retry."
+        explanation: "The bus does not filter by payload."
+      - id: c
+        text: "In the dependency filter on `body.ref`. An event that does not match is dropped and no trigger runs."
+        explanation: "Correct. The filter is part of the dependency."
+      - id: d
+        text: "In the EventSource, which refuses to publish `dev`."
+        explanation: "The EventSource publishes everything it receives. The Sensor filters."
+    correct_option: c
+    explanation: "A dependency filter decides whether the trigger fires."
+

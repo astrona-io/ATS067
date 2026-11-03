@@ -1,0 +1,14 @@
+resources:
+  - ../../base/scout
+namespace: scout-dev
+replicas:
+  - name: scout
+    count: 1
+patches:
+  - target:
+      kind: Deployment
+      name: scout
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: release-1

@@ -1,0 +1,15 @@
+spec:
+  minReadySeconds: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    spec:
+      containers:
+        - name: scout
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http

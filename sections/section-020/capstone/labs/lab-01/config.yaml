@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Repair And Release With Automated Analysis (CAPSTONE). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-capstone-020
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - quay.io/argoproj/argo-rollouts:v1.10.0
+
+bootstrap:
+  init:
+    - name: install-rollouts
+      description: Install the Argo Rollouts controller
+      type: file
+      source: bootstrap/01-install-rollouts.sh
+    - name: seed-cluster
+      description: Create go-httpbin, the template and both Rollouts
+      type: file
+      source: bootstrap/02-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: Both Rollouts, the Services, the client and go-httpbin exist
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Do not delete or scale a Rollout or a Service.
+    - name: template-repaired
+      description: The AnalysisTemplate quality-gate has a threshold that a score of 95 passes
+      type: file
+      source: validation/validate-template-repaired.sh
+      hint: Read the failed AnalysisRun of scout and compare the measured value with the condition.
+    - name: scout-released
+      description: scout is Healthy on version-3 after a successful analysis
+      type: file
+      source: validation/validate-scout-released.sh
+      hint: After the template is repaired, release a changed template, version-3.
+    - name: shield-gated
+      description: shield has a pre-promotion analysis, a failed run and still serves the stable version
+      type: file
+      source: validation/validate-shield-gated.sh
+      hint: Add prePromotionAnalysis with score 40 and release version-2.
+    - name: analysis-record
+      description: The ConfigMap analysis-record matches the live stable ReplicaSets and the failed run
+      type: file
+      source: validation/validate-analysis-record.sh
+      hint: Read status.stableRS of both Rollouts and the name of the failed AnalysisRun of shield.
+
+teardown:
+  keepCluster: false

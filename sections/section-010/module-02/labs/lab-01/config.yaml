@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Switch A Blue-Green Release And Set A 25 Percent Canary (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-010-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the blue and green Deployments, the stable and canary Deployments and the Services
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: All Deployments exist with their replica counts
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Change Services and the canary replicas only. Do not delete or scale the other Deployments.
+    - name: active-track-green
+      description: The Service scout sends traffic to the green pods only and blue stays ready
+      type: file
+      source: validation/validate-active-track-green.sh
+      hint: The Service selects pods by labels. Change the track label in its selector.
+    - name: canary-share
+      description: The Service probe reaches 3 stable pods and 1 canary pod
+      type: file
+      source: validation/validate-canary-share.sh
+      hint: The selector of probe must not contain the track label, and the canary needs 1 replica.
+    - name: release-evidence
+      description: The ConfigMap release-evidence matches the live Services
+      type: file
+      source: validation/validate-release-evidence.sh
+      hint: Count the ready endpoints behind each Service after your changes.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,526 @@
+# Final domain knowledge check across all four sections.
+---
+schema_version: 1
+kind: question_bank
+id: ats067-final
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: domain
+  id: gitops-patterns
+  title: GitOps Patterns
+questions:
+- id: ats067-final-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Compute the pod limits of a rolling update from maxSurge and
+    maxUnavailable
+  source_readings:
+  - sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+  prompt: 'A Deployment has 10 replicas and the default strategy: `maxSurge: 25%`
+    and `maxUnavailable: 25%`. During an update, what is the largest number of pods
+    that can exist and the smallest number that must stay available?'
+  options:
+  - id: a
+    text: 13 pods at most and 8 available at least.
+    explanation: Correct. Surge rounds up (2.5 to 3) and unavailable rounds down (2.5
+      to 2), so the limits are 13 and 8.
+  - id: b
+    text: 12 pods at most and 8 available at least.
+    explanation: Surge is rounded up, not down, so it is 3 extra pods and the maximum
+      is 13.
+  - id: c
+    text: 13 pods at most and 7 available at least.
+    explanation: Unavailable is rounded down, so 2 pods may be unavailable and 8 must
+      stay available.
+  - id: d
+    text: 10 pods at most and 10 available at least.
+    explanation: Those limits would make progress impossible. The defaults allow extra
+      and missing pods.
+  correct_option: a
+  explanation: The controller rounds maxSurge up and maxUnavailable down when they
+    are percentages.
+- id: ats067-final-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Predict a rollout with a failing readiness probe and maxUnavailable
+    0
+  source_readings:
+  - sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+  prompt: 'A Deployment with 3 replicas uses `maxSurge: 1` and `maxUnavailable: 0`.
+    The new image starts, but its readiness probe always fails. What happens?'
+  options:
+  - id: a
+    text: The rollout stops with one new pod that is not ready, and the 3 old pods
+      keep serving.
+    explanation: 'Correct. With `maxUnavailable: 0` no old pod is removed until a
+      new pod is ready, so capacity stays at 3.'
+  - id: b
+    text: All 3 old pods are removed and the Service has no endpoints.
+    explanation: 'That would break `maxUnavailable: 0`, which forbids removing ready
+      capacity.'
+  - id: c
+    text: The controller rolls back to the old image by itself.
+    explanation: A Deployment never rolls back by itself. It only reports the lack
+      of progress.
+  - id: d
+    text: The controller restarts the new pod until the probe passes.
+    explanation: A failing readiness probe does not restart a container. It removes
+      the pod from the endpoints.
+  correct_option: a
+  explanation: The rollout waits for the new pod. Old pods keep serving until a new
+    pod is ready.
+- id: ats067-final-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain what a startup probe does
+  source_readings:
+  - sections/section-010/module-01/course-02-health-gates-readiness-startup-liveness-and-deadlines.md
+  prompt: An application needs up to 90 seconds to start, and its liveness probe would
+    kill it after 30 seconds. Which setting solves this without making the liveness
+    probe slow for the whole life of the pod?
+  options:
+  - id: a
+    text: A startup probe with enough attempts. The liveness and readiness probes
+      begin only after it succeeds.
+    explanation: Correct. Until the startup probe succeeds, the kubelet does not run
+      the other probes, and a failure after all attempts restarts the container.
+  - id: b
+    text: A higher `maxSurge`.
+    explanation: "`maxSurge` limits extra pods during a rollout. It does not change
+      probe timing."
+  - id: c
+    text: A lower `minReadySeconds`.
+    explanation: "`minReadySeconds` adds waiting time after readiness. It does not
+      delay the liveness probe."
+  - id: d
+    text: A `PodDisruptionBudget`.
+    explanation: A budget limits voluntary evictions. It has no effect on probes.
+  correct_option: a
+  explanation: A startup probe holds back the liveness and readiness probes while
+    the application starts.
+- id: ats067-final-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Describe what rollout undo creates
+  source_readings:
+  - sections/section-010/module-01/course-03-rollback-and-version-compatibility.md
+  prompt: A Deployment is at revision 2 after a bad update. You run `kubectl rollout
+    undo deployment/probe`. Which revision does the Deployment have afterwards?
+  options:
+  - id: a
+    text: Revision 1, because the update is undone.
+    explanation: The old revision number is not reused.
+  - id: b
+    text: Revision 3. The ReplicaSet of revision 1 is reused and gets the new number.
+    explanation: Correct. The undo scales the old ReplicaSet back up and gives it
+      the next revision number. Revision 1 is no longer listed.
+  - id: c
+    text: Revision 2, with the old image.
+    explanation: Revision 2 is the bad ReplicaSet and keeps its template.
+  - id: d
+    text: No revision, because undo only edits the history.
+    explanation: Undo changes the pod template, which creates a rollout like any other
+      update.
+  correct_option: b
+  explanation: Rollback is a new rollout that reuses the ReplicaSet of an older template.
+- id: ats067-final-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how a blue-green switch works with a Service
+  source_readings:
+  - sections/section-010/module-02/course-01-blue-green-releases-with-two-deployments.md
+  prompt: 'Blue and green Deployments run side by side. The Service selects `app:
+    scout` and `track: blue`. What is the smallest change that sends new connections
+    to green and keeps blue running?'
+  options:
+  - id: a
+    text: Delete the blue Deployment.
+    explanation: That removes the option to switch back.
+  - id: b
+    text: 'Change the selector of the Service to `track: green`.'
+    explanation: Correct. The endpoints controller recomputes the endpoints from the
+      pods that match, and blue keeps running for a switch back.
+  - id: c
+    text: Scale the green Deployment to 0.
+    explanation: Green would have no pods to receive traffic.
+  - id: d
+    text: Restart the kube-proxy pods.
+    explanation: kube-proxy only follows the endpoints. The selector decides them.
+  correct_option: b
+  explanation: The selector decides which pods are endpoints. Changing it moves the
+    traffic without touching the pods.
+- id: ats067-final-q06
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Read the replica split of a canary step
+  source_readings:
+  - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+  prompt: 'A canary Rollout has 4 replicas, no traffic router and the step `setWeight:
+    25`. How many pods run the new version at that step?'
+  options:
+  - id: a
+    text: 4 pods, and the stable pods are removed.
+    explanation: That would be a full release, not a weight of 25.
+  - id: b
+    text: 0 pods, because a pause is needed first.
+    explanation: "`setWeight` scales the new ReplicaSet by itself. A pause only holds
+      the next step."
+  - id: c
+    text: 2 pods.
+    explanation: That would be a weight of 50.
+  - id: d
+    text: 1 pod, and 3 pods keep the stable version.
+    explanation: Correct. Without a router the weight is approximated by the replica
+      ratio, and 25 percent of 4 is exactly 1.
+  correct_option: d
+  explanation: Without a traffic router, the controller sets the replica counts of
+    the two ReplicaSets to match the weight.
+- id: ats067-final-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Read stableRS and currentPodHash
+  source_readings:
+  - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+  prompt: In `kubectl get rollout scout -o jsonpath='{.status.stableRS} {.status.currentPodHash}'`
+    the two values differ. What does this tell you?
+  options:
+  - id: a
+    text: The Rollout is healthy and finished.
+    explanation: A finished release has equal values.
+  - id: b
+    text: The two hashes are random and carry no meaning.
+    explanation: They are hashes of pod templates.
+  - id: c
+    text: A newer pod template exists that has not become stable yet, or an aborted
+      release left the stable version in place.
+    explanation: Correct. `stableRS` is the ReplicaSet that is trusted. `currentPodHash`
+      is the hash of the current template.
+  - id: d
+    text: The Rollout has no ReplicaSet.
+    explanation: Both values are hashes of existing ReplicaSets.
+  correct_option: c
+  explanation: Equal values mean the current template is the stable one.
+- id: ats067-final-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: State the default of autoPromotionEnabled
+  source_readings:
+  - sections/section-020/module-01/course-02-blue-green-with-active-and-preview-services.md
+  prompt: A blue-green Rollout does not set `autoPromotionEnabled`. What happens after
+    the new ReplicaSet is ready?
+  options:
+  - id: a
+    text: The preview Service is removed.
+    explanation: It stays until the end of the release.
+  - id: b
+    text: The controller promotes automatically, because the default is true.
+    explanation: 'Correct. Set `autoPromotionEnabled: false` to hold the new version
+      in the preview.'
+  - id: c
+    text: The Rollout waits for a promote, because the default is false.
+    explanation: The default is true.
+  - id: d
+    text: The old ReplicaSet is deleted before the switch.
+    explanation: The old ReplicaSet stays for the scale-down delay.
+  correct_option: b
+  explanation: Holding the preview needs an explicit false.
+- id: ats067-final-q09
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Separate AnalysisTemplate from AnalysisRun
+  source_readings:
+  - sections/section-020/module-02/course-01-analysistemplate-metrics-and-the-web-provider.md
+  prompt: What is the difference between an `AnalysisTemplate` and an `AnalysisRun`?
+  options:
+  - id: a
+    text: The template is a reusable definition. A run is one execution of it that
+      the controller creates for a release and that records the measurements.
+    explanation: Correct. The run copies the template and the arguments.
+  - id: b
+    text: The run is the definition and the template is the result.
+    explanation: It is the other way around.
+  - id: c
+    text: They are the same object under two names.
+    explanation: They are separate kinds.
+  - id: d
+    text: A template runs by itself on a schedule.
+    explanation: A template does nothing until a Rollout or a person creates a run.
+  correct_option: a
+  explanation: One template can produce many runs.
+- id: ats067-final-q10
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Predict the result of a failed background analysis
+  source_readings:
+  - sections/section-020/module-02/course-02-analysisrun-results-and-aborting-a-release.md
+  prompt: A canary Rollout has a background analysis. The run fails during the first
+    step. What does the controller do?
+  options:
+  - id: a
+    text: It deletes the Rollout.
+    explanation: The Rollout object stays.
+  - id: b
+    text: It continues the remaining steps and reports the failure later.
+    explanation: The release stops at the abort.
+  - id: c
+    text: It aborts the release. The canary is scaled down, the phase is `Degraded`
+      and `stableRS` keeps serving.
+    explanation: Correct. A failed analysis is the signal to abort.
+  - id: d
+    text: It promotes the canary to avoid a partial state.
+    explanation: A failure never promotes.
+  correct_option: c
+  explanation: The stable version is not touched.
+- id: ats067-final-q11
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Describe the pull loop
+  source_readings:
+  - sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+  prompt: An Argo CD Application points at a Git repository and a namespace. Which
+    component compares the two and who starts the comparison?
+  options:
+  - id: a
+    text: The kubelet on each node reads the repository.
+    explanation: The kubelet runs pods and does not read Git.
+  - id: b
+    text: The Argo CD controller inside the cluster reads Git, reads the live objects
+      and compares them on its own schedule. Nothing outside needs cluster credentials.
+    explanation: Correct. The reconciler runs in the cluster and pulls the desired
+      state.
+  - id: c
+    text: A CI job pushes manifests into the cluster with `kubectl apply` after each
+      commit.
+    explanation: That is the push model. Argo CD does not need a CI job to apply.
+  - id: d
+    text: The Git server calls the Kubernetes API when a commit arrives.
+    explanation: Git does not know about the cluster. The controller fetches from
+      Git.
+  correct_option: b
+  explanation: In the pull model the reconciler is inside the cluster and reads Git.
+- id: ats067-final-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the reconciliation timer
+  source_readings:
+  - sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+  prompt: A commit lands in Git and no webhook is configured. About how long can Argo
+    CD take to notice it, and how can you make it look at once?
+  options:
+  - id: a
+    text: Up to about 3 minutes by default. Annotating the Application with `argocd.argoproj.io/refresh=hard`
+      forces an immediate fetch and compare.
+    explanation: Correct. The default reconciliation interval is 3 minutes. The annotation
+      triggers a refresh.
+  - id: b
+    text: Never, because polling is disabled without a webhook.
+    explanation: The controller polls by default.
+  - id: c
+    text: Exactly 1 second, because Git pushes notify the controller.
+    explanation: Without a webhook there is no push notification.
+  - id: d
+    text: Only after `kubectl rollout restart` on the controller.
+    explanation: A restart is not needed. Use the refresh annotation.
+  correct_option: a
+  explanation: Polling is the fallback. A refresh annotation or a webhook shortens
+    the delay.
+- id: ats067-final-q13
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain self-heal
+  source_readings:
+  - sections/section-030/module-01/course-02-sync-policies-manual-automated-prune-and-self-heal.md
+  prompt: 'An Application has `automated: {prune: true}` without `selfHeal`. An operator
+    scales the live Deployment by hand. What does Argo CD do?'
+  options:
+  - id: a
+    text: It reverts the replica count within seconds.
+    explanation: 'That needs `selfHeal: true`.'
+  - id: b
+    text: It deletes the Deployment because it drifted.
+    explanation: Prune only removes objects that are not in Git.
+  - id: c
+    text: It copies the live count into Git.
+    explanation: Argo CD never writes to Git here.
+  - id: d
+    text: It reports `OutOfSync` and does not revert the change. Self-heal is needed
+      to revert live edits that Git did not change.
+    explanation: 'Correct. Automated sync reacts to Git changes. `selfHeal: true`
+      also reacts to live drift.'
+  correct_option: d
+  explanation: Self-heal is the setting that overwrites live edits.
+- id: ats067-final-q14
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Name the three parts of Argo Events
+  source_readings:
+  - sections/section-030/module-02/course-01-event-sources-the-event-bus-and-the-shape-of-an-event.md
+  prompt: In Argo Events, which object listens for the outside call, which object
+    carries the event and which one decides what to do?
+  options:
+  - id: a
+    text: The EventBus listens and the Sensor creates the Service.
+    explanation: The EventSource listens and creates its Service.
+  - id: b
+    text: The Application listens and the Sensor syncs it.
+    explanation: An Application is an Argo CD object.
+  - id: c
+    text: An EventSource listens, the EventBus carries the event and a Sensor decides
+      which action to run.
+    explanation: Correct. The three parts are separate objects.
+  - id: d
+    text: The Sensor listens, the EventSource carries and the EventBus acts.
+    explanation: The roles are swapped. The Sensor consumes events and runs triggers.
+  correct_option: c
+  explanation: EventSource produces, EventBus transports, Sensor consumes and triggers.
+- id: ats067-final-q15
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Filter events in a Sensor
+  source_readings:
+  - sections/section-030/module-02/course-02-sensors-triggers-and-safe-repeated-actions.md
+  prompt: A Sensor must act only on pushes to `main`. Where does the Sensor express
+    that, and what happens to an event for `dev`?
+  options:
+  - id: a
+    text: In the trigger, which runs and then reverts the change.
+    explanation: The trigger does not run for a filtered event.
+  - id: b
+    text: In the EventBus, which stores `dev` for a later retry.
+    explanation: The bus does not filter by payload.
+  - id: c
+    text: In the dependency filter on `body.ref`. An event that does not match is
+      dropped and no trigger runs.
+    explanation: Correct. The filter is part of the dependency.
+  - id: d
+    text: In the EventSource, which refuses to publish `dev`.
+    explanation: The EventSource publishes everything it receives. The Sensor filters.
+  correct_option: c
+  explanation: A dependency filter decides whether the trigger fires.
+- id: ats067-final-q16
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Register a remote cluster
+  source_readings:
+  - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+  prompt: How does a hub Argo CD learn the address and credential of a target cluster?
+  options:
+  - id: a
+    text: From the `Application`, which carries the token in `spec.destination`.
+    explanation: The destination holds only the server or name and a namespace.
+  - id: b
+    text: From the `AppProject`, which stores a kubeconfig.
+    explanation: A project limits what an application may do. It does not hold credentials.
+  - id: c
+    text: From the kubelet of the target nodes.
+    explanation: The kubelet is not involved.
+  - id: d
+    text: 'From a Secret in `argocd` labeled `argocd.argoproj.io/secret-type: cluster`
+      with the keys `name`, `server` and `config`.'
+    explanation: Correct. `argocd cluster add` creates this Secret, and you can also
+      apply it from a manifest.
+  correct_option: d
+  explanation: Cluster credentials are Secrets, selected by a label.
+- id: ats067-final-q17
+  type: single_choice
+  difficulty: beginner
+  learning_objective: State what Redis holds
+  source_readings:
+  - sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+  prompt: The `argocd-redis` Deployment is deleted. What is lost permanently?
+  options:
+  - id: a
+    text: The repository credentials.
+    explanation: They are Secrets in `argocd`.
+  - id: b
+    text: The commit history of the repository.
+    explanation: History lives in Git.
+  - id: c
+    text: Nothing. It holds a cache of manifests and live state that the components
+      rebuild.
+    explanation: Correct. The state that matters is in Git and in the `Application`
+      objects.
+  - id: d
+    text: All `Application` objects.
+    explanation: They are Kubernetes objects stored by the API server, not in Redis.
+  correct_option: c
+  explanation: Redis is a rebuildable cache.
+- id: ats067-final-q18
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: State the default for cluster-scoped kinds
+  source_readings:
+  - sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+  prompt: An `AppProject` sets no `clusterResourceWhitelist`. Can an application of
+    this project deploy a `ClusterRole`?
+  options:
+  - id: a
+    text: No, and neither can it deploy a `Deployment`.
+    explanation: Namespaced kinds are allowed unless a namespace whitelist or blacklist
+      is set.
+  - id: b
+    text: No. Without a whitelist, cluster-scoped kinds are denied. Namespaced kinds
+      stay allowed.
+    explanation: Correct. A whitelist must list each cluster-scoped kind that is allowed.
+  - id: c
+    text: Yes, because an empty list allows everything.
+    explanation: That is true only for the project `default`, which sets its own wildcard
+      entries.
+  - id: d
+    text: Yes, but only in the namespace of the destination.
+    explanation: A ClusterRole has no namespace.
+  correct_option: b
+  explanation: The default for cluster-scoped kinds in a custom project is deny.
+- id: ats067-final-q19
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Read a Kustomize overlay
+  source_readings:
+  - sections/section-040/module-02/course-01-kustomize-bases-overlays-and-repository-layout.md
+  prompt: 'An overlay `kustomization.yaml` lists `../../base/scout` in `resources`
+    and sets `namespace: scout-prod`. What does `kubectl kustomize` print for it?'
+  options:
+  - id: a
+    text: An error, because an overlay cannot refer to a folder above it.
+    explanation: A path to a folder in `resources` is allowed.
+  - id: b
+    text: The objects of the base with the namespace `scout-prod` set on every namespaced
+      object.
+    explanation: Correct. The overlay changes the base without editing its files.
+  - id: c
+    text: Only the objects that are written in the overlay file.
+    explanation: Resources from the base are included.
+  - id: d
+    text: The base unchanged, because a namespace is not a patch.
+    explanation: The `namespace` field is a transformer that is applied.
+  correct_option: b
+  explanation: An overlay is built from its resources and its transformers.
+- id: ats067-final-q20
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Promote safely
+  source_readings:
+  - sections/section-040/module-02/course-02-promotion-revert-and-git-as-the-state-store.md
+  prompt: A change worked in `dev`. Which commit promotes it to `prod` with the least
+    side effects?
+  options:
+  - id: a
+    text: A commit that edits the base, so that every environment gets the value.
+    explanation: Every environment changes, including those that were not meant to.
+  - id: b
+    text: A `kubectl patch` against the production Deployment.
+    explanation: It has no author, no review and no history, and self-heal removes
+      it.
+  - id: c
+    text: A new build from source that is tagged the same.
+    explanation: This promotes something other than what was tested.
+  - id: d
+    text: A commit that sets the tested value in the prod overlay only.
+    explanation: Correct. It changes one environment, and the history shows who promoted
+      what and when.
+  correct_option: d
+  explanation: Promote the tested value in the target overlay.

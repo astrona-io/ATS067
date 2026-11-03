@@ -1,0 +1,221 @@
+# Starting state: warp (3 replicas) and impulse (2 replicas) are healthy at
+# revision 1, and shuttle is a client with curl.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warp
+  namespace: starfleet
+  labels:
+    app: warp
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: warp
+  template:
+    metadata:
+      labels:
+        app: warp
+    spec:
+      containers:
+        - name: warp
+          image: ghcr.io/stefanprodan/podinfo:6.14.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: version-1
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warp
+  namespace: starfleet
+spec:
+  selector:
+    app: warp
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: impulse
+  namespace: starfleet
+  labels:
+    app: impulse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: impulse
+  template:
+    metadata:
+      labels:
+        app: impulse
+    spec:
+      containers:
+        - name: impulse
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shield-blue
+  namespace: starfleet
+  labels:
+    app: shield
+    track: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shield
+      track: blue
+  template:
+    metadata:
+      labels:
+        app: shield
+        track: blue
+    spec:
+      containers:
+        - name: shield
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: blue
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shield-green
+  namespace: starfleet
+  labels:
+    app: shield
+    track: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shield
+      track: green
+  template:
+    metadata:
+      labels:
+        app: shield
+        track: green
+    spec:
+      containers:
+        - name: shield
+          image: ghcr.io/stefanprodan/podinfo:6.14.0
+          env:
+            - name: PODINFO_UI_MESSAGE
+              value: green
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shield
+  namespace: starfleet
+spec:
+  selector:
+    app: shield
+    track: blue
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http

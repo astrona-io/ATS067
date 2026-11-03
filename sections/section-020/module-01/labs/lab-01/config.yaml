@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Stage A Canary And A Blue-Green Release With Argo Rollouts (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-020-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - quay.io/argoproj/argo-rollouts:v1.10.0
+
+bootstrap:
+  init:
+    - name: install-rollouts
+      description: Install the Argo Rollouts controller
+      type: file
+      source: bootstrap/01-install-rollouts.sh
+    - name: seed-cluster
+      description: Create the Rollouts scout and shield
+      type: file
+      source: bootstrap/02-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: The Rollouts scout and shield and the client shuttle exist with their replica counts
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Change the strategy and the template only. Do not delete or scale the Rollouts.
+    - name: scout-canary-steps
+      description: scout released version-2 through the steps 25, pause, 50, pause and is Healthy
+      type: file
+      source: validation/validate-scout-canary-steps.sh
+      hint: Edit the steps of scout and change the image and the message in the same change.
+    - name: shield-staged
+      description: shield waits for promotion with 1 preview pod while the active Service still serves version 1
+      type: file
+      source: validation/validate-shield-staged.sh
+      hint: Set autoPromotionEnabled to false and previewReplicaCount to 1, then change the image.
+    - name: rollout-record
+      description: The ConfigMap rollout-record matches the live Rollouts and Services
+      type: file
+      source: validation/validate-rollout-record.sh
+      hint: Read status.stableRS of scout and the selector hash of the Service shield-active.
+
+teardown:
+  keepCluster: false

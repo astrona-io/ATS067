@@ -1,9 +1,8 @@
-# Reading-only content; YAML knowledge checks have a separate index.
+# Course manifest for ATS067. Each section lists its README, modules (landing, parts, lab Question reading and lab entry after the last part, summary), a capstone and a quiz.
 training:
   id: ATS067
   title: 'CGOA: GitOps Patterns'
-  description: 'Detailed reading material and reusable YAML knowledge checks for CGOA: GitOps Patterns.
-    Technical content remains draft. No labs or playgrounds.'
+  description: Concept lessons, playgrounds, graded labs, capstones and original scenario quizzes covering every published objective in this CGOA domain. Labs run on kind (Kubernetes 1.35).
   certification:
     name: Certified GitOps Associate
     code: CGOA
@@ -16,94 +15,380 @@ training:
     - Pull vs. Event-driven
     - Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
 modules:
-- id: module-intro
-  title: Introduction
-  description: Audience, reading method and review process.
-  content:
-  - type: reading
+  - id: module-intro
     title: Introduction
-    path: sections/intro/README.md
-  - type: reading
-    title: Welcome To The Course
-    path: sections/intro/course-01-welcome.md
-  - type: reading
-    title: Get Your Machine Ready
-    path: sections/intro/course-02-get-your-machine-ready.md
-  - type: reading
-    title: How This Course Is Made
-    path: sections/intro/course-03-how-this-course-is-made.md
-- id: module-010
-  title: Deployment and Release Patterns
-  description: Developed reading and reasoning for Deployment and Release Patterns.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Deployment and Release Patterns
-    path: sections/section-010/README.md
-  - type: reading
-    title: Safe Application Releases
-    path: sections/section-010/module-01/course.md
-  - type: reading
-    title: Rolling Updates And Health Gates
-    path: sections/section-010/module-01/course-01-rolling-updates-and-health-gates.md
-  - type: reading
-    title: Blue-Green, Canary And Release Evidence
-    path: sections/section-010/module-01/course-02-blue-green-canary-and-release-evidence.md
-  - type: reading
-    title: Summary
-    path: sections/section-010/module-01/course-03-summary.md
-- id: module-020
-  title: Progressive Delivery Patterns
-  description: Developed reading and reasoning for Progressive Delivery Patterns.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Progressive Delivery Patterns
-    path: sections/section-020/README.md
-  - type: reading
-    title: Canary Steps And Blue-Green Service Switching
-    path: sections/section-020/module-01/course.md
-  - type: reading
-    title: Canary Steps And Blue-Green Service Switching
-    path: sections/section-020/module-01/course-01-canary-steps-and-blue-green-service-switching.md
-  - type: reading
-    title: AnalysisTemplate Measurements And AnalysisRun Decisions
-    path: sections/section-020/module-01/course-02-analysistemplate-measurements-and-analysisrun-decisions.md
-  - type: reading
-    title: Summary
-    path: sections/section-020/module-01/course-03-summary.md
-- id: module-030
-  title: Pull vs. Event-driven
-  description: Developed reading and reasoning for Pull vs. Event-driven.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Pull vs. Event-driven
-    path: sections/section-030/README.md
-  - type: reading
-    title: Event-Driven Triggers And Safe Repeated Actions
-    path: sections/section-030/module-01/course.md
-  - type: reading
-    title: Event-Driven Triggers And Safe Repeated Actions
-    path: sections/section-030/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
-  - type: reading
-    title: Summary
-    path: sections/section-030/module-01/course-02-summary.md
-- id: module-040
-  title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
-  description: Developed reading and reasoning for Architecture Patterns (in-cluster and external reconciler,
-    state store management, etc.).
-  maturity: alpha
-  content:
-  - type: reading
-    title: Architecture Patterns (in-cluster and external reconciler, state store management, etc.)
-    path: sections/section-040/README.md
-  - type: reading
-    title: Agent Placement, Repository Layout And Failure Domains
-    path: sections/section-040/module-01/course.md
-  - type: reading
-    title: Agent Placement, Repository Layout And Failure Domains
-    path: sections/section-040/module-01/course-01-agent-placement-repository-layout-and-failure-domains.md
-  - type: reading
-    title: Summary
-    path: sections/section-040/module-01/course-02-summary.md
+    description: Audience, learning approach, tools to install and contribution process.
+    content:
+    - type: reading
+      title: "Introduction"
+      path: sections/intro/README.md
+    - type: reading
+      title: "Welcome To The Course"
+      path: sections/intro/course-01-welcome.md
+    - type: reading
+      title: "Get Your Machine Ready"
+      path: sections/intro/course-02-get-your-machine-ready.md
+    - type: reading
+      title: "How This Course Is Made"
+      path: sections/intro/course-03-how-this-course-is-made.md
+  - id: module-010
+    title: "Deployment and Release Patterns"
+    description: >
+      Makes the reader able to replace a running version without an outage and to prove or undo the change: rolling updates, probes and rollback, blue-green by Service selector and canary by replica ratio.
+    content:
+      - type: reading
+        title: "Section Overview"
+        path: sections/section-010/README.md
+      - type: reading
+        title: "Rolling Updates And Health Gates"
+        path: sections/section-010/module-01/course.md
+      - type: reading
+        title: "How A Rolling Update Replaces Pods"
+        path: sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+      - type: reading
+        title: "Health Gates: Readiness, Startup, Liveness And Deadlines"
+        path: sections/section-010/module-01/course-02-health-gates-readiness-startup-liveness-and-deadlines.md
+      - type: reading
+        title: "Rollback And Version Compatibility"
+        path: sections/section-010/module-01/course-03-rollback-and-version-compatibility.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Stuck Rollout And Roll Back A Bad Release"
+        path: sections/section-010/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: deployment-release
+        task_kind: fix
+        tags: [deployment, rollout, probes, rollback, revision]
+        learning_goals:
+          - Find why a rollout stalls and repair it
+          - Roll back a bad release to a good revision
+        resources:
+          - name: "Kubernetes Deployments"
+            url: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-01/course-04-summary.md
+      - type: reading
+        title: "Blue-Green And Canary With Services"
+        path: sections/section-010/module-02/course.md
+      - type: reading
+        title: "Blue-Green Releases With Two Deployments"
+        path: sections/section-010/module-02/course-01-blue-green-releases-with-two-deployments.md
+      - type: reading
+        title: "Canary Releases, Traffic Share And Release Evidence"
+        path: sections/section-010/module-02/course-02-canary-releases-traffic-share-and-release-evidence.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Switch A Blue-Green Release And Set A 25 Percent Canary"
+        path: sections/section-010/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 20m
+        topic: deployment-release
+        task_kind: build
+        tags: [blue-green, canary, service, selector, replicas]
+        learning_goals:
+          - Switch traffic between two Deployments by a Service selector
+          - Set a canary share by the replica ratio
+        resources:
+          - name: "Kubernetes Services"
+            url: https://kubernetes.io/docs/concepts/services-networking/service/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-02/course-03-summary.md
+      - type: reading
+        title: Question
+        path: sections/section-010/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Deployment And Release Patterns Capstone"
+        path: sections/section-010/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 30m
+        topic: deployment-release
+        task_kind: fix
+        tags: [rollout, rollback, blue-green, canary, evidence]
+        learning_goals:
+          - Repair a stalled release and roll it back
+          - Switch a blue-green release and set a canary share and record the evidence
+        resources:
+          - name: "Kubernetes Deployments"
+            url: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+      - type: quiz
+        title: "Knowledge Check: Deployment and Release Patterns"
+        path: sections/section-010/quiz.yaml
+        pass_score: 70
+  - id: module-020
+    title: "Progressive Delivery Patterns"
+    description: >
+      Makes the reader able to run canary and blue-green releases with Argo Rollouts and to let measurements decide whether a release continues: Rollout strategies, status fields, AnalysisTemplate and AnalysisRun.
+    content:
+      - type: reading
+        title: "Section Overview"
+        path: sections/section-020/README.md
+      - type: reading
+        title: "Canary Steps And Blue-Green With Argo Rollouts"
+        path: sections/section-020/module-01/course.md
+      - type: reading
+        title: "Canary Steps And Replica Weights"
+        path: sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+      - type: reading
+        title: "Blue-Green With Active And Preview Services"
+        path: sections/section-020/module-01/course-02-blue-green-with-active-and-preview-services.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Stage A Canary And A Blue-Green Release With Argo Rollouts"
+        path: sections/section-020/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: progressive-delivery
+        task_kind: build
+        tags: [argo-rollouts, canary, blue-green, stablers]
+        learning_goals:
+          - Write canary steps and read the stable ReplicaSet
+          - Hold a blue-green version in the preview Service
+        resources:
+          - name: "Argo Rollouts documentation"
+            url: https://argo-rollouts.readthedocs.io/en/stable/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-01/course-03-summary.md
+      - type: reading
+        title: "AnalysisTemplate And AnalysisRun Decisions"
+        path: sections/section-020/module-02/course.md
+      - type: reading
+        title: "AnalysisTemplate Metrics And The Web Provider"
+        path: sections/section-020/module-02/course-01-analysistemplate-metrics-and-the-web-provider.md
+      - type: reading
+        title: "AnalysisRun Results And Aborting A Release"
+        path: sections/section-020/module-02/course-02-analysisrun-results-and-aborting-a-release.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Gate A Canary With An AnalysisTemplate And Survive A Bad Release"
+        path: sections/section-020/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: progressive-delivery
+        task_kind: build
+        tags: [argo-rollouts, analysistemplate, analysisrun, web-provider, abort]
+        learning_goals:
+          - Write an AnalysisTemplate with the web provider
+          - Read an AnalysisRun and keep the stable version after a failed run
+        resources:
+          - name: "Argo Rollouts analysis"
+            url: https://argo-rollouts.readthedocs.io/en/stable/features/analysis/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-02/course-03-summary.md
+      - type: reading
+        title: Question
+        path: sections/section-020/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Progressive Delivery Capstone"
+        path: sections/section-020/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 40m
+        topic: progressive-delivery
+        task_kind: fix
+        tags: [argo-rollouts, analysistemplate, canary, blue-green]
+        learning_goals:
+          - Repair a broken quality gate and release again
+          - Gate a blue-green promotion with a failing score and record the result
+        resources:
+          - name: "Argo Rollouts documentation"
+            url: https://argo-rollouts.readthedocs.io/en/stable/
+      - type: quiz
+        title: "Knowledge Check: Progressive Delivery Patterns"
+        path: sections/section-020/quiz.yaml
+        pass_score: 70
+  - id: module-030
+    title: "Pull vs. Event-driven"
+    description: >
+      Makes the reader able to keep a cluster equal to Git with a pull loop and to start safe work from an event: Argo CD sync policies, Argo Events sources, sensors and idempotent triggers.
+    content:
+      - type: reading
+        title: "Section Overview"
+        path: sections/section-030/README.md
+      - type: reading
+        title: "Pull-Based Reconciliation With Argo CD"
+        path: sections/section-030/module-01/course.md
+      - type: reading
+        title: "The Pull Loop: Repository, Desired State And Live State"
+        path: sections/section-030/module-01/course-01-the-pull-loop-repository-desired-state-and-live-state.md
+      - type: reading
+        title: "Sync Policies: Manual, Automated, Prune And Self-Heal"
+        path: sections/section-030/module-01/course-02-sync-policies-manual-automated-prune-and-self-heal.md
+      - type: reading
+        title: Question
+        path: sections/section-030/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Make Git The Only Way To Change An Application"
+        path: sections/section-030/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: gitops-pull
+        task_kind: fix
+        tags: [argo-cd, application, automated, prune, self-heal, gitea]
+        learning_goals:
+          - Turn on prune and self-heal for an Application
+          - Release a change through a Git commit and record the synced revision
+        resources:
+          - name: "Argo CD automated sync"
+            url: https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/
+      - type: reading
+        title: Summary
+        path: sections/section-030/module-01/course-03-summary.md
+      - type: reading
+        title: "Event-Driven Triggers With Argo Events"
+        path: sections/section-030/module-02/course.md
+      - type: reading
+        title: "Event Sources, The Event Bus And The Shape Of An Event"
+        path: sections/section-030/module-02/course-01-event-sources-the-event-bus-and-the-shape-of-an-event.md
+      - type: reading
+        title: "Sensors, Triggers And Safe Repeated Actions"
+        path: sections/section-030/module-02/course-02-sensors-triggers-and-safe-repeated-actions.md
+      - type: reading
+        title: Question
+        path: sections/section-030/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Build A Safe Event Path From A Webhook To A Patch"
+        path: sections/section-030/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: event-driven
+        task_kind: build
+        tags: [argo-events, eventsource, sensor, webhook, patch, idempotent]
+        learning_goals:
+          - Define an EventSource and a Sensor with a filter
+          - Use a patch trigger so that a repeated event changes nothing
+        resources:
+          - name: "Argo Events documentation"
+            url: https://argoproj.github.io/argo-events/
+      - type: reading
+        title: Summary
+        path: sections/section-030/module-02/course-03-summary.md
+      - type: reading
+        title: Question
+        path: sections/section-030/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Reconcile From Git And Trigger From An Event"
+        path: sections/section-030/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 50m
+        topic: gitops-pull
+        task_kind: build
+        tags: [argo-cd, argo-events, self-heal, webhook, patch]
+        learning_goals:
+          - Heal drift with automated sync and release through Git
+          - Record the released commit with an idempotent event path
+        resources:
+          - name: "Argo CD automated sync"
+            url: https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/
+          - name: "Argo Events documentation"
+            url: https://argoproj.github.io/argo-events/
+      - type: quiz
+        title: "Knowledge Check: Pull vs. Event-driven"
+        path: sections/section-030/quiz.yaml
+        pass_score: 70
+  - id: module-040
+    title: "Architecture Patterns (in-cluster and external reconciler, state store management, etc.)"
+    description: >
+      Makes the reader able to place a reconciler, limit it with projects and credentials, and arrange a repository for several environments: failure domains, AppProjects, Kustomize overlays, promotion and revert through Git.
+    content:
+      - type: reading
+        title: "Section Overview"
+        path: sections/section-040/README.md
+      - type: reading
+        title: "Agent Placement, Credentials And Failure Domains"
+        path: sections/section-040/module-01/course.md
+      - type: reading
+        title: "Where The Reconciler Runs: In-Cluster, Hub And Per-Cluster Agents"
+        path: sections/section-040/module-01/course-01-where-the-reconciler-runs-in-cluster-hub-and-per-cluster-agents.md
+      - type: reading
+        title: "AppProjects, Destinations And Credentials"
+        path: sections/section-040/module-01/course-02-appprojects-destinations-and-credentials.md
+      - type: reading
+        title: Question
+        path: sections/section-040/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Fence Two Applications With An AppProject"
+        path: sections/section-040/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: architecture
+        task_kind: build
+        tags: [argo-cd, appproject, destinations, sourcerepos, invalidspecerror]
+        learning_goals:
+          - Create an AppProject with one repository, one destination and no cluster kinds
+          - Move Applications into the project and read the refusal
+        resources:
+          - name: "Argo CD projects"
+            url: https://argo-cd.readthedocs.io/en/stable/user-guide/projects/
+      - type: reading
+        title: Summary
+        path: sections/section-040/module-01/course-03-summary.md
+      - type: reading
+        title: "Repository Layout And State Store Management"
+        path: sections/section-040/module-02/course.md
+      - type: reading
+        title: "Kustomize Bases, Overlays And Repository Layout"
+        path: sections/section-040/module-02/course-01-kustomize-bases-overlays-and-repository-layout.md
+      - type: reading
+        title: "Promotion, Revert And Git As The State Store"
+        path: sections/section-040/module-02/course-02-promotion-revert-and-git-as-the-state-store.md
+      - type: reading
+        title: Question
+        path: sections/section-040/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Promote By Commit And Undo With Git Revert"
+        path: sections/section-040/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 40m
+        topic: architecture
+        task_kind: fix
+        tags: [kustomize, overlays, promotion, git-revert, argo-cd]
+        learning_goals:
+          - Revert a faulty commit without rewriting history
+          - Promote a tested value in the prod overlay only
+        resources:
+          - name: "Kustomize"
+            url: https://kubectl.docs.kubernetes.io/references/kustomize/
+          - name: "git revert"
+            url: https://git-scm.com/docs/git-revert
+      - type: reading
+        title: Summary
+        path: sections/section-040/module-02/course-03-summary.md
+      - type: reading
+        title: Question
+        path: sections/section-040/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Two Environments With Their Own Projects, Promotion And Revert"
+        path: sections/section-040/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 55m
+        topic: architecture
+        task_kind: build
+        tags: [argo-cd, appproject, kustomize, git-revert, promotion]
+        learning_goals:
+          - Fence two environments with their own AppProjects
+          - Revert, promote and record a release through Git
+        resources:
+          - name: "Argo CD projects"
+            url: https://argo-cd.readthedocs.io/en/stable/user-guide/projects/
+          - name: "Kustomize"
+            url: https://kubectl.docs.kubernetes.io/references/kustomize/
+      - type: quiz
+        title: "Knowledge Check: Architecture Patterns"
+        path: sections/section-040/quiz.yaml
+        pass_score: 70
+      - type: quiz
+        title: "Final Knowledge Check: GitOps Patterns"
+        path: sections/final-domain-quiz.yaml
+        pass_score: 70

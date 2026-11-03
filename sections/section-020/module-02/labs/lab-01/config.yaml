@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Gate A Canary With An AnalysisTemplate And Survive A Bad Release (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-020-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - quay.io/argoproj/argo-rollouts:v1.10.0
+
+bootstrap:
+  init:
+    - name: install-rollouts
+      description: Install the Argo Rollouts controller
+      type: file
+      source: bootstrap/01-install-rollouts.sh
+    - name: seed-cluster
+      description: Create go-httpbin and the Rollout scout
+      type: file
+      source: bootstrap/02-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: The Rollout scout, the client and go-httpbin exist with their replica counts
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Change the strategy and the template only. Do not delete or scale the Rollout.
+    - name: quality-gate-template
+      description: The AnalysisTemplate quality-gate has the required web metric
+      type: file
+      source: validation/validate-quality-gate-template.sh
+      hint: Check the URL, the jsonPath, the condition, the interval, the count and the failure limit.
+    - name: bad-release-aborted
+      description: A release with score 40 failed its analysis and left the stable version serving
+      type: file
+      source: validation/validate-bad-release-aborted.sh
+      hint: Add the analysis to scout with the argument score 40 and release a changed template.
+    - name: good-release-complete
+      description: A release with score 95 succeeded and scout is Healthy on version-3
+      type: file
+      source: validation/validate-good-release-complete.sh
+      hint: Release a changed template again with the argument score 95.
+
+teardown:
+  keepCluster: false

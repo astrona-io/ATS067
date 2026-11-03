@@ -1,0 +1,253 @@
+# Knowledge check for section 020. Listed in astrona.yaml as a `type: quiz` entry.
+schema_version: 1
+kind: question_bank
+id: ats067-020
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-020
+  title: "Progressive Delivery With Argo Rollouts"
+questions:
+  - id: ats067-020-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Describe what a Rollout object replaces"
+    source_readings:
+      - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+    prompt: |-
+      A team moves a workload from a Deployment to an Argo Rollouts `Rollout`. What stays the same and what changes?
+    options:
+      - id: a
+        text: "The Kubernetes Deployment controller runs the new strategy."
+        explanation: "The Argo Rollouts controller runs it. The Deployment controller does not manage a Rollout."
+      - id: b
+        text: "The pod template and selector stay the same. The `strategy` field now holds canary or blue-green settings that the controller runs."
+        explanation: "Correct. The Rollout has a pod template like a Deployment and replaces the update logic with its own strategy."
+      - id: c
+        text: "The pod template is replaced by a list of container images only."
+        explanation: "A Rollout keeps the full pod template."
+      - id: d
+        text: "The workload no longer uses ReplicaSets."
+        explanation: "The Rollout controller still creates one ReplicaSet per pod template, labeled with `rollouts-pod-template-hash`."
+    correct_option: b
+    explanation: "A Rollout is a Deployment-like object with a different update strategy, run by its own controller."
+
+  - id: ats067-020-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Read the replica split of a canary step"
+    source_readings:
+      - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+    prompt: |-
+      A canary Rollout has 4 replicas, no traffic router and the step `setWeight: 25`. How many pods run the new version at that step?
+    options:
+      - id: a
+        text: "4 pods, and the stable pods are removed."
+        explanation: "That would be a full release, not a weight of 25."
+      - id: b
+        text: "0 pods, because a pause is needed first."
+        explanation: "`setWeight` scales the new ReplicaSet by itself. A pause only holds the next step."
+      - id: c
+        text: "2 pods."
+        explanation: "That would be a weight of 50."
+      - id: d
+        text: "1 pod, and 3 pods keep the stable version."
+        explanation: "Correct. Without a router the weight is approximated by the replica ratio, and 25 percent of 4 is exactly 1."
+    correct_option: d
+    explanation: "Without a traffic router, the controller sets the replica counts of the two ReplicaSets to match the weight."
+
+  - id: ats067-020-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Distinguish a timed pause from an indefinite pause"
+    source_readings:
+      - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+    prompt: |-
+      A canary step list ends with `- pause: {}`. What happens when the Rollout reaches it?
+    options:
+      - id: a
+        text: "The Rollout waits until someone promotes it. The phase is `Paused`."
+        explanation: "Correct. A pause without a duration has no timer, so it needs a promote to continue."
+      - id: b
+        text: "The Rollout continues after 30 seconds, the default."
+        explanation: "A pause with no duration does not use a default timer."
+      - id: c
+        text: "The Rollout aborts."
+        explanation: "A pause is not a failure."
+      - id: d
+        text: "The Rollout deletes the canary pods."
+        explanation: "The canary pods stay while the pause holds."
+    correct_option: a
+    explanation: "Only `pause: {duration: ...}` ends by itself."
+
+  - id: ats067-020-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read stableRS and currentPodHash"
+    source_readings:
+      - sections/section-020/module-01/course-01-canary-steps-and-replica-weights.md
+    prompt: |-
+      In `kubectl get rollout scout -o jsonpath='{.status.stableRS} {.status.currentPodHash}'` the two values differ. What does this tell you?
+    options:
+      - id: a
+        text: "The Rollout is healthy and finished."
+        explanation: "A finished release has equal values."
+      - id: b
+        text: "The two hashes are random and carry no meaning."
+        explanation: "They are hashes of pod templates."
+      - id: c
+        text: "A newer pod template exists that has not become stable yet, or an aborted release left the stable version in place."
+        explanation: "Correct. `stableRS` is the ReplicaSet that is trusted. `currentPodHash` is the hash of the current template."
+      - id: d
+        text: "The Rollout has no ReplicaSet."
+        explanation: "Both values are hashes of existing ReplicaSets."
+    correct_option: c
+    explanation: "Equal values mean the current template is the stable one."
+
+  - id: ats067-020-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain the blue-green services"
+    source_readings:
+      - sections/section-020/module-01/course-02-blue-green-with-active-and-preview-services.md
+    prompt: |-
+      A blue-green Rollout sets `activeService: shield` and `previewService: shield-preview`. A new version is deployed. Which Service selects the new pods first?
+    options:
+      - id: a
+        text: "`shield`, because the active Service always follows the newest version."
+        explanation: "The active Service switches only at promotion."
+      - id: b
+        text: "Both Services at the same moment."
+        explanation: "They select different hashes until promotion."
+      - id: c
+        text: "Neither. A Service cannot select a ReplicaSet."
+        explanation: "A Service selects pods by labels. The controller edits the selector to include the hash."
+      - id: d
+        text: "`shield-preview`. `shield` keeps selecting the old ReplicaSet until promotion."
+        explanation: "Correct. The controller adds the pod-template hash to each Service selector. The preview gets the new hash first."
+    correct_option: d
+    explanation: "The promotion changes the selector of the active Service."
+
+  - id: ats067-020-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "State the default of autoPromotionEnabled"
+    source_readings:
+      - sections/section-020/module-01/course-02-blue-green-with-active-and-preview-services.md
+    prompt: |-
+      A blue-green Rollout does not set `autoPromotionEnabled`. What happens after the new ReplicaSet is ready?
+    options:
+      - id: a
+        text: "The preview Service is removed."
+        explanation: "It stays until the end of the release."
+      - id: b
+        text: "The controller promotes automatically, because the default is true."
+        explanation: "Correct. Set `autoPromotionEnabled: false` to hold the new version in the preview."
+      - id: c
+        text: "The Rollout waits for a promote, because the default is false."
+        explanation: "The default is true."
+      - id: d
+        text: "The old ReplicaSet is deleted before the switch."
+        explanation: "The old ReplicaSet stays for the scale-down delay."
+    correct_option: b
+    explanation: "Holding the preview needs an explicit false."
+
+  - id: ats067-020-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain scaleDownDelaySeconds"
+    source_readings:
+      - sections/section-020/module-01/course-02-blue-green-with-active-and-preview-services.md
+    prompt: |-
+      After a blue-green promotion, why does the old ReplicaSet keep its pods for a while?
+    options:
+      - id: a
+        text: "The pods wait for a manual delete."
+        explanation: "The controller scales them down by itself."
+      - id: b
+        text: "Pods cannot be removed after a switch."
+        explanation: "They can be, and the controller does it after the delay."
+      - id: c
+        text: "`scaleDownDelaySeconds` (30 seconds by default) keeps them so that traffic in flight and a fast return are possible."
+        explanation: "Correct. The controller scales the old version down after the delay."
+      - id: d
+        text: "The Deployment controller needs a minute to delete pods."
+        explanation: "A Rollout does not use the Deployment controller."
+    correct_option: c
+    explanation: "The delay is a safety margin."
+
+  - id: ats067-020-q08
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Separate AnalysisTemplate from AnalysisRun"
+    source_readings:
+      - sections/section-020/module-02/course-01-analysistemplate-metrics-and-the-web-provider.md
+    prompt: |-
+      What is the difference between an `AnalysisTemplate` and an `AnalysisRun`?
+    options:
+      - id: a
+        text: "The template is a reusable definition. A run is one execution of it that the controller creates for a release and that records the measurements."
+        explanation: "Correct. The run copies the template and the arguments."
+      - id: b
+        text: "The run is the definition and the template is the result."
+        explanation: "It is the other way around."
+      - id: c
+        text: "They are the same object under two names."
+        explanation: "They are separate kinds."
+      - id: d
+        text: "A template runs by itself on a schedule."
+        explanation: "A template does nothing until a Rollout or a person creates a run."
+    correct_option: a
+    explanation: "One template can produce many runs."
+
+  - id: ats067-020-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Evaluate a web metric result"
+    source_readings:
+      - sections/section-020/module-02/course-01-analysistemplate-metrics-and-the-web-provider.md
+    prompt: |-
+      A web metric reads the value `40`. Its `successCondition` is `asInt(result) >= 90` and `failureLimit` is 0. What is the result of the run?
+    options:
+      - id: a
+        text: "The run waits until the value changes."
+        explanation: "Each measurement is judged when it is taken."
+      - id: b
+        text: "The measurement fails and the run is `Failed`."
+        explanation: "Correct. The condition is false, and the limit of 0 failures allows none."
+      - id: c
+        text: "The run is `Successful`, because the endpoint answered."
+        explanation: "A reachable endpoint is not enough. The condition decides."
+      - id: d
+        text: "The run is `Inconclusive`."
+        explanation: "Inconclusive needs a failure condition and a success condition that are both unmet."
+    correct_option: b
+    explanation: "The condition is checked against the extracted value."
+
+  - id: ats067-020-q10
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Predict the result of a failed background analysis"
+    source_readings:
+      - sections/section-020/module-02/course-02-analysisrun-results-and-aborting-a-release.md
+    prompt: |-
+      A canary Rollout has a background analysis. The run fails during the first step. What does the controller do?
+    options:
+      - id: a
+        text: "It deletes the Rollout."
+        explanation: "The Rollout object stays."
+      - id: b
+        text: "It continues the remaining steps and reports the failure later."
+        explanation: "The release stops at the abort."
+      - id: c
+        text: "It aborts the release. The canary is scaled down, the phase is `Degraded` and `stableRS` keeps serving."
+        explanation: "Correct. A failed analysis is the signal to abort."
+      - id: d
+        text: "It promotes the canary to avoid a partial state."
+        explanation: "A failure never promotes."
+    correct_option: c
+    explanation: "The stable version is not touched."
+

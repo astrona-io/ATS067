@@ -1,0 +1,253 @@
+# Knowledge check for section 010. Listed in astrona.yaml as a `type: quiz` entry.
+schema_version: 1
+kind: question_bank
+id: ats067-010
+course_id: ATS067
+exam_code: CGOA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-010
+  title: "Deployment and Release Patterns"
+questions:
+  - id: ats067-010-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Compute the pod limits of a rolling update from maxSurge and maxUnavailable"
+    source_readings:
+      - sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+    prompt: |-
+      A Deployment has 10 replicas and the default strategy: `maxSurge: 25%` and `maxUnavailable: 25%`. During an update, what is the largest number of pods that can exist and the smallest number that must stay available?
+    options:
+      - id: a
+        text: "13 pods at most and 8 available at least."
+        explanation: "Correct. Surge rounds up (2.5 to 3) and unavailable rounds down (2.5 to 2), so the limits are 13 and 8."
+      - id: b
+        text: "12 pods at most and 8 available at least."
+        explanation: "Surge is rounded up, not down, so it is 3 extra pods and the maximum is 13."
+      - id: c
+        text: "13 pods at most and 7 available at least."
+        explanation: "Unavailable is rounded down, so 2 pods may be unavailable and 8 must stay available."
+      - id: d
+        text: "10 pods at most and 10 available at least."
+        explanation: "Those limits would make progress impossible. The defaults allow extra and missing pods."
+    correct_option: a
+    explanation: "The controller rounds maxSurge up and maxUnavailable down when they are percentages."
+
+  - id: ats067-010-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Identify the object that holds the pods of one revision"
+    source_readings:
+      - sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+    prompt: |-
+      You update the image of a Deployment. Which object does the Deployment controller create to run the pods of the new version?
+    options:
+      - id: a
+        text: "A new Deployment with a generated name."
+        explanation: "The Deployment object stays the same. Only its pod template changes."
+      - id: b
+        text: "A new ReplicaSet whose name ends in the hash of the pod template."
+        explanation: "Correct. Each distinct pod template gets its own ReplicaSet, labeled with `pod-template-hash`."
+      - id: c
+        text: "A new StatefulSet."
+        explanation: "A Deployment does not create StatefulSets."
+      - id: d
+        text: "A new Service."
+        explanation: "A Service does not run pods. It only selects them."
+    correct_option: b
+    explanation: "A Deployment owns one ReplicaSet per pod template. The rollout moves replicas from the old ReplicaSet to the new one."
+
+  - id: ats067-010-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Predict a rollout with a failing readiness probe and maxUnavailable 0"
+    source_readings:
+      - sections/section-010/module-01/course-01-how-a-rolling-update-replaces-pods.md
+    prompt: |-
+      A Deployment with 3 replicas uses `maxSurge: 1` and `maxUnavailable: 0`. The new image starts, but its readiness probe always fails. What happens?
+    options:
+      - id: a
+        text: "The rollout stops with one new pod that is not ready, and the 3 old pods keep serving."
+        explanation: "Correct. With `maxUnavailable: 0` no old pod is removed until a new pod is ready, so capacity stays at 3."
+      - id: b
+        text: "All 3 old pods are removed and the Service has no endpoints."
+        explanation: "That would break `maxUnavailable: 0`, which forbids removing ready capacity."
+      - id: c
+        text: "The controller rolls back to the old image by itself."
+        explanation: "A Deployment never rolls back by itself. It only reports the lack of progress."
+      - id: d
+        text: "The controller restarts the new pod until the probe passes."
+        explanation: "A failing readiness probe does not restart a container. It removes the pod from the endpoints."
+    correct_option: a
+    explanation: "The rollout waits for the new pod. Old pods keep serving until a new pod is ready."
+
+  - id: ats067-010-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Distinguish the effect of readiness and liveness probe failures"
+    source_readings:
+      - sections/section-010/module-01/course-02-health-gates-readiness-startup-liveness-and-deadlines.md
+    prompt: |-
+      A container passes its liveness probe but fails its readiness probe. What does the cluster do?
+    options:
+      - id: a
+        text: "It restarts the container."
+        explanation: "A restart is the reaction to a failing liveness probe, not a readiness probe."
+      - id: b
+        text: "It deletes the pod and creates a new one."
+        explanation: "The kubelet does not delete a pod because of a failing probe."
+      - id: c
+        text: "It removes the pod from the endpoints of its Services and keeps the container running."
+        explanation: "Correct. A pod that is not ready receives no new Service traffic, and the container is left alone."
+      - id: d
+        text: "It marks the Deployment as failed immediately."
+        explanation: "The Deployment only reports a failed progress after `progressDeadlineSeconds`."
+    correct_option: c
+    explanation: "Readiness controls traffic. Liveness controls restarts."
+
+  - id: ats067-010-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what a startup probe does"
+    source_readings:
+      - sections/section-010/module-01/course-02-health-gates-readiness-startup-liveness-and-deadlines.md
+    prompt: |-
+      An application needs up to 90 seconds to start, and its liveness probe would kill it after 30 seconds. Which setting solves this without making the liveness probe slow for the whole life of the pod?
+    options:
+      - id: a
+        text: "A startup probe with enough attempts. The liveness and readiness probes begin only after it succeeds."
+        explanation: "Correct. Until the startup probe succeeds, the kubelet does not run the other probes, and a failure after all attempts restarts the container."
+      - id: b
+        text: "A higher `maxSurge`."
+        explanation: "`maxSurge` limits extra pods during a rollout. It does not change probe timing."
+      - id: c
+        text: "A lower `minReadySeconds`."
+        explanation: "`minReadySeconds` adds waiting time after readiness. It does not delay the liveness probe."
+      - id: d
+        text: "A `PodDisruptionBudget`."
+        explanation: "A budget limits voluntary evictions. It has no effect on probes."
+    correct_option: a
+    explanation: "A startup probe holds back the liveness and readiness probes while the application starts."
+
+  - id: ats067-010-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "State what progressDeadlineSeconds does and does not do"
+    source_readings:
+      - sections/section-010/module-01/course-02-health-gates-readiness-startup-liveness-and-deadlines.md
+    prompt: |-
+      A rollout makes no progress for longer than `progressDeadlineSeconds`. What happens to the Deployment?
+    options:
+      - id: a
+        text: "It rolls back to the last revision."
+        explanation: "The Deployment controller does not roll back. A tool or a person must do it."
+      - id: b
+        text: "The condition `Progressing` becomes `False` with the reason `ProgressDeadlineExceeded`, and the pods stay as they are."
+        explanation: "Correct. The deadline only reports. `kubectl rollout status` then exits with an error."
+      - id: c
+        text: "The new ReplicaSet is deleted."
+        explanation: "Nothing is deleted. The controller keeps working toward the desired state."
+      - id: d
+        text: "The Deployment is paused."
+        explanation: "Pausing is a separate action in `spec.paused`. A missed deadline does not set it."
+    correct_option: b
+    explanation: "The deadline reports a stalled rollout. It does not undo anything."
+
+  - id: ats067-010-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Describe what rollout undo creates"
+    source_readings:
+      - sections/section-010/module-01/course-03-rollback-and-version-compatibility.md
+    prompt: |-
+      A Deployment is at revision 2 after a bad update. You run `kubectl rollout undo deployment/probe`. Which revision does the Deployment have afterwards?
+    options:
+      - id: a
+        text: "Revision 1, because the update is undone."
+        explanation: "The old revision number is not reused."
+      - id: b
+        text: "Revision 3. The ReplicaSet of revision 1 is reused and gets the new number."
+        explanation: "Correct. The undo scales the old ReplicaSet back up and gives it the next revision number. Revision 1 is no longer listed."
+      - id: c
+        text: "Revision 2, with the old image."
+        explanation: "Revision 2 is the bad ReplicaSet and keeps its template."
+      - id: d
+        text: "No revision, because undo only edits the history."
+        explanation: "Undo changes the pod template, which creates a rollout like any other update."
+    correct_option: b
+    explanation: "Rollback is a new rollout that reuses the ReplicaSet of an older template."
+
+  - id: ats067-010-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain the limit of rollback for data schema changes"
+    source_readings:
+      - sections/section-010/module-01/course-03-rollback-and-version-compatibility.md
+    prompt: |-
+      Version 2 of an application runs a migration that renames a database column. Version 1 reads the old column name. What does `kubectl rollout undo` do for the data?
+    options:
+      - id: a
+        text: "It reverses the migration through the pod template."
+        explanation: "A pod template holds no database state. Undo does not touch the database."
+      - id: b
+        text: "It restores the database from the last revision."
+        explanation: "Revisions store pod templates, not data."
+      - id: c
+        text: "Nothing. The pods go back to version 1, which now fails because the column is gone."
+        explanation: "Correct. A rollback restores the pod template only, so the schema change must be backward compatible."
+      - id: d
+        text: "It blocks the rollback until the migration is reversed."
+        explanation: "Kubernetes has no knowledge of the migration, so it blocks nothing."
+    correct_option: c
+    explanation: "Rollback restores the pod template. Use expand-and-contract schema changes so that the old version still works."
+
+  - id: ats067-010-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain how a blue-green switch works with a Service"
+    source_readings:
+      - sections/section-010/module-02/course-01-blue-green-releases-with-two-deployments.md
+    prompt: |-
+      Blue and green Deployments run side by side. The Service selects `app: scout` and `track: blue`. What is the smallest change that sends new connections to green and keeps blue running?
+    options:
+      - id: a
+        text: "Delete the blue Deployment."
+        explanation: "That removes the option to switch back."
+      - id: b
+        text: "Change the selector of the Service to `track: green`."
+        explanation: "Correct. The endpoints controller recomputes the endpoints from the pods that match, and blue keeps running for a switch back."
+      - id: c
+        text: "Scale the green Deployment to 0."
+        explanation: "Green would have no pods to receive traffic."
+      - id: d
+        text: "Restart the kube-proxy pods."
+        explanation: "kube-proxy only follows the endpoints. The selector decides them."
+    correct_option: b
+    explanation: "The selector decides which pods are endpoints. Changing it moves the traffic without touching the pods."
+
+  - id: ats067-010-q10
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Compute a canary share from replica counts and spot a selector defect"
+    source_readings:
+      - sections/section-010/module-02/course-02-canary-releases-traffic-share-and-release-evidence.md
+    prompt: |-
+      The Service `probe` selects `app: probe` only. The Deployment `probe-stable` has 9 ready pods and `probe-canary` has 1 ready pod, all with the label `app: probe`. Which statement is correct?
+    options:
+      - id: a
+        text: "The canary receives about 10 percent of the connections, because 1 of the 10 endpoints is a canary pod."
+        explanation: "Correct. The share follows the endpoint count. The distribution is random per connection, so a short sample can differ."
+      - id: b
+        text: "The canary receives none, because the pods have different `track` labels."
+        explanation: "The selector does not contain `track`, so the label does not matter."
+      - id: c
+        text: "The canary receives exactly 10 percent in every minute."
+        explanation: "The distribution is per connection and random, so it is only close to the ratio over many connections."
+      - id: d
+        text: "The canary receives 50 percent, because there are 2 Deployments."
+        explanation: "The count of Deployments does not matter. Each ready pod is one endpoint."
+    correct_option: a
+    explanation: "The canary share is the share of ready canary endpoints among all ready endpoints behind the Service."
+

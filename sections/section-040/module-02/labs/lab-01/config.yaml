@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Promote By Commit And Undo With Git Revert (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-lab-040-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - gitea/gitea:28.1.0-rootless
+      - quay.io/argoproj/argocd:v3.5.4
+      - public.ecr.aws/docker/library/redis:8.2.3-alpine
+      - alpine/git:2.52.0
+
+bootstrap:
+  init:
+    - name: install-gitea
+      description: Start Gitea and create the admin user
+      type: file
+      source: bootstrap/01-install-gitea.sh
+    - name: install-argocd
+      description: Install Argo CD
+      type: file
+      source: bootstrap/02-install-argocd.sh
+    - name: seed-cluster
+      description: Seed the repository with its history and create the Applications
+      type: file
+      source: bootstrap/03-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: Gitea, Argo CD, both Applications and the Deployments exist
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Do not delete the Applications. Change the repository only.
+    - name: revert-in-history
+      description: The faulty prod commit is reverted and still in the history
+      type: file
+      source: validation/validate-revert-in-history.sh
+      hint: Use git revert on the commit prod set replicas to 0 and push without force.
+    - name: prod-promoted
+      description: prod holds release-2 with 2 replicas and only the prod overlay changed
+      type: file
+      source: validation/validate-prod-promoted.sh
+      hint: Edit overlays/prod only. Do not edit the base or the dev overlay.
+    - name: environments-reconciled
+      description: Both environments are Synced and Healthy at the head of main
+      type: file
+      source: validation/validate-environments-reconciled.sh
+      hint: Push to main, request a hard refresh and wait for both Applications.
+
+teardown:
+  keepCluster: false

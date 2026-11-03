@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sensor-runner
+  namespace: argo-events
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sensor-runner
+  namespace: starfleet
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create", "get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sensor-runner
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sensor-runner
+subjects:
+  - kind: ServiceAccount
+    name: sensor-runner
+    namespace: argo-events
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: fleet-hook
+  namespace: argo-events
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    deploy:
+      port: "12000"
+      endpoint: /deploy
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: fleet-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: sensor-runner
+  dependencies:
+    - name: deploy-dep
+      eventSourceName: fleet-hook
+      eventName: deploy
+  triggers:
+    - template:
+        name: record-event
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                generateName: deploy-event-
+                namespace: starfleet
+              data:
+                service: unset
+                ref: unset
+          parameters:
+            - src:
+                dependencyName: deploy-dep
+                dataKey: body.service
+              dest: data.service
+            - src:
+                dependencyName: deploy-dep
+                dataKey: body.ref
+              dest: data.ref

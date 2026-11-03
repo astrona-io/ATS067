@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Two Environments With Their Own Projects, Promotion And Revert (CAPSTONE). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-067-capstone-040
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - ghcr.io/stefanprodan/podinfo:6.14.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - gitea/gitea:28.1.0-rootless
+      - quay.io/argoproj/argocd:v3.5.4
+      - public.ecr.aws/docker/library/redis:8.2.3-alpine
+      - alpine/git:2.52.0
+
+bootstrap:
+  init:
+    - name: install-gitea
+      description: Start Gitea and create the admin user
+      type: file
+      source: bootstrap/01-install-gitea.sh
+    - name: install-argocd
+      description: Install Argo CD
+      type: file
+      source: bootstrap/02-install-argocd.sh
+    - name: seed-cluster
+      description: Seed the repository with its history and create the Applications
+      type: file
+      source: bootstrap/03-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: workloads-running
+      description: Gitea, Argo CD, both Applications and the Deployments exist
+      type: file
+      source: validation/validate-workloads-running.sh
+      hint: Do not delete the Applications. Change the projects, the Applications and the repository only.
+    - name: projects-defined
+      description: dev-env and prod-env each allow one repository, one namespace and no cluster-scoped kinds
+      type: file
+      source: validation/validate-projects-defined.sh
+      hint: Create two AppProjects. Each has the one repository URL, one destination for its own namespace and an empty clusterResourceWhitelist.
+    - name: apps-in-projects
+      description: Each Application is in its own project and accepted by it
+      type: file
+      source: validation/validate-apps-in-projects.sh
+      hint: Patch spec.project of scout-dev to dev-env and of scout-prod to prod-env.
+    - name: git-release
+      description: The faulty prod commit is reverted and prod holds release-2 in its overlay
+      type: file
+      source: validation/validate-git-release.sh
+      hint: Use git revert on the image bump of prod and edit overlays/prod only. Do not force-push.
+    - name: environments-reconciled
+      description: Both environments are Synced and Healthy at the head of main
+      type: file
+      source: validation/validate-environments-reconciled.sh
+      hint: Push to main, request a hard refresh and wait for both Applications.
+    - name: release-record
+      description: The ConfigMap release-record matches the revision and the message of prod
+      type: file
+      source: validation/validate-release-record.sh
+      hint: Read status.sync.revision of scout-prod and the message of its Deployment.
+
+teardown:
+  keepCluster: false

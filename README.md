@@ -2,17 +2,23 @@
 
 Certified GitOps Associate (CGOA): GitOps Patterns, worth 20% of the official curriculum. This course belongs to ATP013.
 
-Developed reading explains mechanisms, responsible components, examples and limits. Every section has an introduction and every module closes with a summary. Reusable YAML checks contain 5–15 questions per bank. Technical content remains draft. No labs or playgrounds are included.
+Each module has reading, a playground and a graded lab. Each section has a capstone lab and a quiz, and the course ends with a final domain quiz. The labs run on a local kind cluster with Argo CD, Gitea, Argo Rollouts and Argo Events as needed. All labs and playgrounds are built but UNTESTED: they pass static checks only and have not been run end to end.
 
 ## Course Outline
 
-| Section / module | Module | Teaching files |
-| --- | --- | --- |
-| 010 / 01 | Safe Application Releases | Rolling Updates And Health Gates; Blue-Green, Canary And Release Evidence |
-| 020 / 01 | Canary Steps And Blue-Green Service Switching | Canary Steps And Blue-Green Service Switching; AnalysisTemplate Measurements And AnalysisRun Decisions |
-| 030 / 01 | Event-Driven Triggers And Safe Repeated Actions | Event-Driven Triggers And Safe Repeated Actions |
-| 040 / 01 | Agent Placement, Repository Layout And Failure Domains | Agent Placement, Repository Layout And Failure Domains |
+| Section / module | Module |
+| --- | --- |
+| 010 / 01 | Rolling Updates And Health Gates |
+| 010 / 02 | Blue-Green And Canary With Services |
+| 020 / 01 | Canary Steps And Blue-Green With Argo Rollouts |
+| 020 / 02 | AnalysisTemplate And AnalysisRun Decisions |
+| 030 / 01 | Pull-Based Reconciliation With Argo CD |
+| 030 / 02 | Event-Driven Triggers With Argo Events |
+| 040 / 01 | Agent Placement, Credentials And Failure Domains |
+| 040 / 02 | Repository Layout And State Store Management |
+
+Every section also has a capstone lab and a quiz. The final domain quiz is in sections/final-domain-quiz.yaml.
 
 ## Author Review
 
-See [curriculum coverage](CURRICULUM.md), [primary sources](SOURCES.md), [question-bank documentation](ASSESSMENTS.md) and [contribution instructions](CONTRIBUTING.md). No runtime execution is claimed.
+See [curriculum coverage](CURRICULUM.md), [primary sources](SOURCES.md) and [contribution instructions](CONTRIBUTING.md).
