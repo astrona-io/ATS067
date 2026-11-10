@@ -60,7 +60,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: deployment-release
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [deployment, rollout, probes, rollback, revision]
         learning_goals:
           - Find why a rollout stalls and repair it
@@ -148,7 +148,7 @@ modules:
         difficulty: advanced
         estimated_duration: 30m
         topic: deployment-release
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [rollout, rollback, blue-green, canary, evidence]
         learning_goals:
           - Repair a stalled release and roll it back
@@ -235,7 +235,7 @@ modules:
         difficulty: advanced
         estimated_duration: 40m
         topic: progressive-delivery
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-rollouts, analysistemplate, canary, blue-green]
         learning_goals:
           - Repair a broken quality gate and release again
@@ -273,7 +273,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 35m
         topic: gitops-pull
-        task_kind: fix
+        task_kind: build
         tags: [argo-cd, application, automated, prune, self-heal, gitea]
         learning_goals:
           - Turn on prune and self-heal for an Application
@@ -391,7 +391,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 40m
         topic: architecture
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [kustomize, overlays, promotion, git-revert, argo-cd]
         learning_goals:
           - Revert a faulty commit without rewriting history
