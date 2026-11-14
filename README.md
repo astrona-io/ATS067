@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://astrona.io/courses/certified-gitops-associate-cgoa">
+    <img src="https://astrona.io/courses/certified-gitops-associate-cgoa/domains/ATS067.svg" alt="ATS067: GitOps Patterns, part of the Certified GitOps Associate course on Astrona" width="100%">
+  </a>
+</p>
+
 # GitOps Patterns (ATS067)
 
 Certified GitOps Associate (CGOA): GitOps Patterns, worth 20% of the official curriculum. This course belongs to ATP013.
